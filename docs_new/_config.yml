@@ -1,0 +1,8 @@
+title: "Коллекция Декоративных Культур"
+description: "Частная коллекция многолетних растений для средней полосы"
+markdown: kramdown
+theme: minima
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - TODO
