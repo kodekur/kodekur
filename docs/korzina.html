@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина</title>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 10px;
+        }
+        th {
+            background-color: #99FF99;
+        }
+        .empty-cart {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .remove-item {
+            background-color: #FF9999;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .remove-item:hover {
+            background-color: #FF6666;
+        }
+        .quantity {
+            width: 50px;
+            text-align: center;
+        }
+        form {
+            max-width: 400px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #status {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body bgcolor="#CCFFCC" link="#c71585" vlink="#2f4f4f">
+	<table border="0" width="100%">
+	    <tr> <!-- начало 1й строки -->
+	        <td width="250px"> <!-- начало 1й ячейки -->
+	            <p> <img src="/Emblema.jpg" border="0" hspace="0" vspace="0"> </p>
+	        </td> <!-- конец 1й ячейки -->
+	        <td style="font-size: 40px; font-family: cursive" style="padding-left: 10px"> <!-- начало 2й ячейки -->
+	            <span class="green">КО</span>ллекция<br/>
+	            <span class="green">ДЕ</span>коративных<br/>
+	            <span class="green">КУ</span>льту<span class="green">Р</span>
+
+	        </td> <!-- конец 2й ячейки -->
+	    </tr> <!-- конец 1й строки -->
+
+	    <tr>
+
+	        <td valign="top">
+
+
+	            <ul id="nav" style="width: 250px">
+							<li><a href="/index.html">Главная</a></li>
+							<li><a href="/KODEKUR_Price.html"target="_blank">Ассортимент на 2025 год</a></li>
+							<li><a href="/opt.html"target="_blank">Для оптовиков</a></li>
+							<li><a href="javascript: toggleBlock('menuCatalog')">Каталог</a></li>
+							<span id="menuCatalog">
+								<li><a href="/arbustum.html">Декоративные кустарники</a></li>
+								<li><a href="/herbs.html">Декоративные травы</a></li>
+								<li><a href="/mnogoletnije.html">Многолетние культуры</a></li>
+								<li><a href="/conifer.html">Хвойные</a></li>
+							</span>
+							<li><a href="/contacts.html">Контакты</a></li>
+						
+						</ul>
+
+	            <br/>
+
+	            <div style="width: 250px">
+	                <script>
+	                          (function() {
+	                            var cx = '012816619450786521312:3jqswgt6k4s';
+	                            var gcse = document.createElement('script');
+	                            gcse.type = 'text/javascript';
+	                            gcse.async = true;
+	                            gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+	                                '//www.google.com/cse/cse.js?cx=' + cx;
+	                            var s = document.getElementsByTagName('script')[0];
+	                            s.parentNode.insertBefore(gcse, s);
+	                          })();
+	                        </script>
+	                <gcse:searchbox-only resultsUrl="/search.html"></gcse:searchbox-only>
+	            </div>
+
+	            <br>
+
+	            <p style="font-size: 35px; font-family: cursive; text-align: center">
+	                Собственное производство
+	            </p>
+
+	        </td>
+	        <td style="text-align: center; vertical-align: top; padding-left: 10px"> <!-- Изменяемая ячейка -->
+				
+    <h1>Корзина</h1>
+    <table id="cart-table">
+        <thead>
+            <tr>
+                <th>Фото</th>
+                <th>Код</th>
+                <th>Наименование, описание</th>
+                <th>Цена, руб.</th>
+                <th>Количество</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p class="empty-cart" id="empty-message">Ваша корзина пуста.</p>
+
+<div id="status"></div>
+
+<form id="emailForm">
+    <label for="recipient">Ваш адрес электронной почты:</label>
+    <input type="email" id="recipient" name="recipient" required>
+
+    <button type="submit" id="submit-button" aria-label="Отправить заказ">Отправить заказ</button>
+</form>
+
+<div id="order-summary" style="display:none; margin-top: 20px;"></div>
+
+<script type="text/javascript">
+    // Инициализация EmailJS с вашим Public Key
+	emailjs.init("i3HpqvdgITUgo3iv4");
+	
+	// Глобальный счетчик заказов в Upstash
+	const UPSTASH_REST_API = "https://divine-gobbler-16096.upstash.io/incr/orderCounter"; // URL счетчика и команда increment.
+	const UPSTASH_AUTH_TOKEN = "Bearer AT7gAAIncDJiMjAzOTdhZWVkMTM0ZTQzYjRjYWJiZjcxMzEyNGQ5ZXAyMTYwOTY"; // Ваш токен авторизации
+
+	// Функция для увеличения счетчика
+	async function incrementCounter() {
+	    const response = await fetch(UPSTASH_REST_API, {
+	        method: "GET",
+	        headers: {
+	            Authorization: UPSTASH_AUTH_TOKEN,
+	        },
+	    });
+
+	    const data = await response.json();
+        console.log("Ответ сервера:", data);
+	    if (response.ok) {
+	        return data.result; // Возвращает новое значение счетчика
+	    } else {
+            console.error("Ошибка запроса к Upstash:", data.error);
+	        throw new Error(data.error || "Ошибка при обращении к Upstash");
+	    }
+	}
+
+    function toggleSubmitButton() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || {};
+        const submitButton = document.getElementById('submit-button');
+        if (Object.keys(cart).length === 0) {
+            submitButton.disabled = true;
+        } else {
+            submitButton.disabled = false;
+        }
+    }
+
+	// Обработчик формы
+    document.getElementById("emailForm").addEventListener("submit", function (e) {
+        e.preventDefault(); // Предотвращаем перезагрузку страницы
+
+		(async () => {
+        	const recipient = document.getElementById("recipient").value;
+        	const statusDiv = document.getElementById("status");
+            const orderSummaryDiv = document.getElementById("order-summary");
+
+        	// Очищаем сообщение о статусе
+        	statusDiv.textContent = "";
+
+			try {
+		        // Увеличиваем счетчик и получаем номер заказа
+		        const orderNumber = await incrementCounter();
+
+				// Формируем таблицу с элементами корзины
+                const cart = JSON.parse(localStorage.getItem('cart')) || {};
+                let cartHTML = '<table border="1" cellpadding="5" cellspacing="0">';
+                cartHTML += '<tr><th>Фото</th><th>Код</th><th>Наименование</th><th>Цена</th><th>Количество</th></tr>';
+                for (const [code, item] of Object.entries(cart)) {
+					// Обновляем путь для фото на полный
+	                const updatedPhoto = item.photo 
+                    	? item.photo.replace(/src="([^"]*)"/, 'src="https://kodekur.ru/$1"') 
+                    	: '';
+
+	                cartHTML += `
+	                    <tr>
+	                        <td>${updatedPhoto || ''}</td>
+                            <td>${code}</td>
+                            <td>${item.description || ''}</td>
+                            <td>${item.price || ''}</td>
+                            <td>${item.quantity || ''}</td>
+                        </tr>`;
+                }
+                cartHTML += '</table>';
+
+                // Формируем параметры письма
+                const params = {
+                    reply_to: recipient,
+                    order_number: orderNumber,
+                    html: cartHTML, // Используем сформированную таблицу
+                };
+
+				// Отправляем письмо через EmailJS
+		        await emailjs.send("service_kodekur", "template_mq9u6qv", params);
+
+                // Обновляем интерфейс после успешной отправки
+                statusDiv.textContent = `Заказ успешно отправлен! Заказ №${orderNumber}`;
+                statusDiv.className = "success";
+                orderSummaryDiv.innerHTML = `<h2>Сводка заказа №${orderNumber}</h2>${cartHTML}`;
+                orderSummaryDiv.style.display = "block";
+
+                // Очищаем корзину
+                localStorage.removeItem('cart');
+                loadCart();
+
+                // Скрываем форму
+                document.getElementById("emailForm").style.display = "none";
+
+		    } catch (error) {
+		        console.error("Ошибка:", error);
+		        statusDiv.textContent = "Ошибка при отправке письма: " + error.message;
+		        statusDiv.className = "error";
+            }
+        })();
+    });
+
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            const cartTableBody = document.querySelector('#cart-table tbody');
+            const emptyMessage = document.getElementById('empty-message');
+
+            // Clear the cart display
+            cartTableBody.innerHTML = '';
+
+            if (Object.keys(cart).length === 0) {
+                emptyMessage.style.display = 'block';
+            } else {
+                emptyMessage.style.display = 'none';
+            }
+
+            Object.entries(cart).forEach(([code, item]) => {
+                const row = document.createElement('tr');
+
+                const photoCell = document.createElement('td');
+                photoCell.innerHTML = item.photo;
+                row.appendChild(photoCell);
+
+                const codeCell = document.createElement('td');
+                codeCell.textContent = code;
+                row.appendChild(codeCell);
+
+                const descriptionCell = document.createElement('td');
+                descriptionCell.textContent = item.description;
+                row.appendChild(descriptionCell);
+
+                const priceCell = document.createElement('td');
+                priceCell.textContent = item.price;
+                row.appendChild(priceCell);
+
+                const quantityCell = document.createElement('td');
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'number';
+                quantityInput.value = item.quantity;
+                quantityInput.min = '1';
+                quantityInput.className = 'quantity';
+                quantityInput.addEventListener('change', () => updateQuantity(code, quantityInput.value));
+                quantityCell.appendChild(quantityInput);
+                row.appendChild(quantityCell);
+
+                const actionCell = document.createElement('td');
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Удалить';
+                removeButton.className = 'remove-item';
+                removeButton.setAttribute('aria-label', `Удалить товар с кодом ${code}`);
+                removeButton.addEventListener('click', () => {
+                    removeItem(code);
+                    toggleSubmitButton();
+                });
+                actionCell.appendChild(removeButton);
+                row.appendChild(actionCell);
+
+                cartTableBody.appendChild(row);
+            });
+
+            toggleSubmitButton();
+        }
+
+        function updateQuantity(code, newQuantity) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            cart[code].quantity = parseInt(newQuantity);
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function removeItem(code) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || {};
+            delete cart[code];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        }
+
+        window.onload = loadCart;
+    </script>
+</td>
+</tr>
+</table>
+</body>
+</html>
