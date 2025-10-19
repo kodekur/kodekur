@@ -204,7 +204,7 @@ class=MsoHyperlink><span style='font-size:14.0pt'>.</span></span></p>
                 <tr>
                     <th>Фото</th>
                     <th>Код</th>
-                    <th>Наименование, описание</th>
+                    <th>Наименование</th>
                     <th>Цена, руб.</th>
                     <th>Количество</th>
                     <th>Действие</th>
@@ -245,6 +245,7 @@ function jsonp(url){
 }
 
 // после вставки таблицы:
+/* TOOD: remove?
 async function replaceImagesWithProxy(container){
   const imgs = Array.from(container.querySelectorAll('img'));
   const batch = 3; const sleep = ms => new Promise(r=>setTimeout(r,ms));
@@ -263,6 +264,7 @@ async function replaceImagesWithProxy(container){
     await sleep(150);
   }
 }
+*/
 
 function loadCatalog() {
   fetch(SHEET_HTML_URL, { cache: 'no-store' })
@@ -277,6 +279,7 @@ function loadCatalog() {
     
       //replaceImagesWithProxy(container);
 
+      addBuyButtons();
     })
     .catch(e => {
       console.error(e);
@@ -291,24 +294,30 @@ function loadCatalog() {
 		    rows.forEach((row, index) => {
 		        const cells = row.querySelectorAll('td');
 
+                if (cells.length === 0) return; // TODO WTF? пропускаем
+
 		        // Обрабатываем строки с colspan
 		        const firstCell = cells[0];
-		        if (firstCell.hasAttribute('colspan') && firstCell.getAttribute('colspan') === '4') {
-		            firstCell.setAttribute('colspan', '5'); // Меняем colspan=4 на colspan=5
+
+                 // для заголовков разделов - меняем colspan=4 на colspan=5 (или 5 на 6)
+		        if (firstCell.hasAttribute('colspan') && firstCell.getAttribute('colspan') === '5') {
+		            firstCell.setAttribute('colspan', '6');
 		            return;
 		        }
 
 		        // Добавляем текст "Купить" в заголовке, если во второй колонке "Код"
-		        if (index === 0 && cells[1]?.textContent.trim().toLowerCase() === 'код') {
-		            const buyHeaderCell = document.createElement('th');
+		        // if (index === 0 && cells[1]?.textContent.trim().toLowerCase() === 'код') {
+		        if (index === 1) {
+                    //console.log('Adding "Купить" header into row:', row);
+		            const buyHeaderCell = document.createElement('th'); // TODO: th OR td? Gsheet uses td for header row 🤨
 		            buyHeaderCell.textContent = 'Купить';
 		            row.appendChild(buyHeaderCell);
 		            return;
 		        }
 
-		        // Проверяем, содержит ли вторая колонка числовой код и четвертая колонка цену
+		        // Проверяем, содержит ли вторая колонка числовой код и пятая колонка цену (или слово НЕТ)
 		        const codeCell = cells[1];
-		        const priceCell = cells[3]; // Предполагается, что цена в четвертой колонке
+		        const priceCell = cells[4];
 		        const buyCell = document.createElement('td'); // Создаем ячейку для кнопки или пустоты
 
 		        const isCodeValid = codeCell && /^[0-9]+$/.test(codeCell.textContent.trim());
@@ -342,19 +351,19 @@ function loadCatalog() {
 		    const cells = row.querySelectorAll('td');
 		    const photo = cells[0].innerHTML;
 		    const code = cells[1].textContent;
-		    const description = cells[2].textContent;
-		    const price = cells[3].textContent;
+		    const name = cells[2].textContent;
+		    const price = cells[4].textContent;
 
 		    const cart = JSON.parse(localStorage.getItem('cart')) || {};
 
 		    if (cart[code]) {
 		        cart[code].quantity += parseInt(quantity);
 		    } else {
-		        cart[code] = { photo, description, price, quantity: parseInt(quantity) };
+		        cart[code] = { photo, name, price, quantity: parseInt(quantity) };
 		    }
 
 		    localStorage.setItem('cart', JSON.stringify(cart));
-		    // alert(`Товар ${description} добавлен в корзину`);
+		    // alert(`Товар ${name} добавлен в корзину`);
 			loadCart();
 		}
 
@@ -387,9 +396,9 @@ function loadCatalog() {
                 codeCell.textContent = code;
                 row.appendChild(codeCell);
 
-                const descriptionCell = document.createElement('td');
-                descriptionCell.textContent = item.description;
-                row.appendChild(descriptionCell);
+                const nameCell = document.createElement('td');
+                nameCell.textContent = item.name;
+                row.appendChild(nameCell);
 
                 const priceCell = document.createElement('td');
                 priceCell.textContent = item.price;

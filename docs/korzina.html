@@ -160,7 +160,7 @@
             <tr>
                 <th>Фото</th>
                 <th>Код</th>
-                <th>Наименование, описание</th>
+                <th>Наименование</th>
                 <th>Цена, руб.</th>
                 <th>Количество</th>
                 <th>Действие</th>
@@ -312,9 +312,9 @@
                 codeCell.textContent = code;
                 row.appendChild(codeCell);
 
-                const descriptionCell = document.createElement('td');
-                descriptionCell.textContent = item.description;
-                row.appendChild(descriptionCell);
+                const nameCell = document.createElement('td');
+                nameCell.textContent = item.name;
+                row.appendChild(nameCell);
 
                 const priceCell = document.createElement('td');
                 priceCell.textContent = item.price;
