@@ -4,7 +4,7 @@ function fixFormatting() {
 
   const lastRow = sh.getLastRow();
   const lastCol = sh.getLastColumn();
-  const values = sh.getRange(1, 1, lastRow, 1).getValues();
+  const values = sh.getRange(1, 1, lastRow, Math.max(2, lastCol)).getValues();
 
   const boldColumnsCount = Math.min(3, lastCol) - 1;
   if (lastRow > 0 && boldColumnsCount > 0) {
@@ -44,13 +44,18 @@ function fixFormatting() {
   // высота по фото
   for (let i = 0; i < lastRow; i++) {
     const row = i + 1;
-    const v = values[i][0];
-    const hasPhoto = v && typeof v !== 'string';
-    console.log("hasPhoto: ", hasPhoto)
+    const rowValues = values[i];
+    const hasPhoto = rowValues[0] && typeof rowValues[0] !== 'string';
+    const hasSecondColumn = lastCol >= 2 && rowValues.length > 1 && rowValues[1] !== '';
+
+    console.log(`i=${i}, hasPhoto=${hasPhoto}, hasSecondColumn=${hasSecondColumn}`);
     if (hasPhoto) {
       sh.setRowHeight(row, 80); // фиксированная высота для фото
     } else {
       sh.autoResizeRows(row, 1); // вернуть «по содержимому»
+    }
+
+    if (row == 1 || !hasSecondColumn) {
       const rowRange = sh.getRange(row, 1, 1, lastCol);
       rowRange.setFontWeight("bold"); // выделить заголовки
       rowRange.setBackground("#99FF99"); // подсветить заголовки
