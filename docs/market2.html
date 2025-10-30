@@ -30,7 +30,7 @@
             margin-top: 20px;
         }
         th, td {
-            border: 1px solid #000;
+            border: none;
             text-align: center;
             padding: 1px;
         }
@@ -73,7 +73,35 @@
             font-size: 16px;
             color: green;
         }
-		.checkout-button {
+        .catalog-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+        .catalog-tab-button {
+            background-color: #99FF99;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+        .catalog-tab-button:hover {
+            background-color: #77DD77;
+        }
+        .catalog-tab-button.active {
+            background-color: #5FCC5F;
+            font-weight: bold;
+        }
+        .catalog-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .checkout-button {
 		    background-color: #FFD700;
 		    border: 1px solid #000;
 		    padding: 10px 20px;
@@ -88,14 +116,31 @@
 
     <!-- Стили вложенного google sheet: -->
     <style>
-        .waffle a { color: inherit; }
-        .waffle .s2{text-align:center;color:#000000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:0;}
-        .waffle .s0{background-color:#99ff99;text-align:center;font-weight:bold;color:#000000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:2px 3px 2px 3px;}
-        .waffle .s3{text-align:center;font-weight:bold;color:#000000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:2px 3px 2px 3px;}
-        .waffle .s1{background-color:#99ff99;text-align:center;font-weight:bold;color:#000000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:normal;overflow:hidden;word-wrap:break-word;direction:ltr;padding:2px 3px 2px 3px;}
-        .waffle .s6{text-align:center;color:#000000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:nowrap;direction:ltr;padding:2px 3px 2px 3px;}
-        .waffle .s5{text-align:left;color:#000000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:normal;overflow:hidden;word-wrap:break-word;direction:ltr;padding:2px 3px 2px 3px;}
-        .waffle .s4{text-align:left;font-weight:bold;color:#000000;font-family:Arial;font-size:10pt;vertical-align:middle;white-space:normal;overflow:hidden;word-wrap:break-word;direction:ltr;padding:2px 3px 2px 3px;}
+        /* подзаголовки colspan; заголовки фото, код, цена */
+        .waffle .s0 { background-color:#99ff99;text-align:center;font-weight:bold;vertical-align:middle;white-space:nowrap;padding:2px 3px 2px 3px; }
+        /* заголовки наименование, описание */
+        .waffle .s1 { background-color:#99ff99;text-align:center;font-weight:bold;vertical-align:middle;white-space:normal;overflow:hidden;word-wrap:break-word;padding:2px 3px 2px 3px; }
+        /* картинки */
+        .waffle .s2 { text-align:center;vertical-align:middle;white-space:nowrap;padding:0; }
+        /* коды */
+        .waffle .s3 { text-align:center;font-weight:bold;vertical-align:middle;white-space:nowrap;padding:2px 3px 2px 3px; }
+        /* наименования */
+        .waffle .s4 { text-align:left;font-weight:bold;vertical-align:middle;white-space:normal;overflow:hidden;word-wrap:break-word;padding:2px 3px 2px 3px; }
+        /* описания */
+        .waffle .s5 { text-align:left;vertical-align:middle;white-space:normal;overflow:hidden;word-wrap:break-word;padding:2px 3px 2px 3px; }
+        /* цены */
+        .waffle .s6 { text-align:center;vertical-align:middle;white-space:nowrap;padding:2px 3px 2px 3px; }
+
+        /* первая колонка - номера строк gsheet -- прячем. */
+        th.row-headers-background.row-header-shim { display: none; }
+
+        /* таблица корзины и таблица каталога -- border 1px: */
+        table.waffle th,
+        table.waffle td,
+        #cart-table th,
+        #cart-table td {
+            border: 1px solid #000;
+        }
     </style>
 
 </head>
@@ -191,23 +236,20 @@ style='font-size:14.0pt;color:black'> посадочного материала 
 
 
 <p class=MsoNormal style='margin-right:16.65pt;text-align:justify;text-indent:
-36.0pt;text-autospace:none'><b><span style='font-size:14.0pt'>С фотографиями
-растений, а также с их описанием можно ознакомиться на сайте </span></b><a
-href="http://kodekur.ru"><span style='font-size:14.0pt'>http://kodekur.ru</span></a><span
-class=MsoHyperlink><span style='font-size:14.0pt'>.</span></span></p>
+36.0pt;text-autospace:none'><b><span style='font-size:14.0pt'>С фотографиями растений, а также с их описанием можно ознакомиться .......... </span></b></p>
 
   
     <span><b>КОРЗИНА: </b></span><button class="add-to-cart toggle-button" onclick="toggleCart()">Развернуть корзину</button>
     <div class="cart-container" id="cart-container" style="display: none">
-        <table id="cart-table">
+        <table id="cart-table" class="waffle">
             <thead>
                 <tr>
-                    <th>Фото</th>
-                    <th>Код</th>
-                    <th>Наименование</th>
-                    <th>Цена, руб.</th>
-                    <th>Количество</th>
-                    <th>Действие</th>
+                    <th class="s0">Фото</th>
+                    <th class="s0">Код</th>
+                    <th class="s1">Наименование</th>
+                    <th class="s0">Цена, руб.</th>
+                    <th class="s0">Количество</th>
+                    <th class="s0">Действие</th>
                 </tr>
             </thead>
             <tbody>
@@ -220,11 +262,35 @@ class=MsoHyperlink><span style='font-size:14.0pt'>.</span></span></p>
 	</button>
 
     <h2>Каталог растений</h2>
-	<div id="product-catalog"></div>
+	<div id="product-catalog">
+        <div class="catalog-tabs" id="catalog-tabs">
+            <button type="button" class="catalog-tab-button active" data-gid="727164352">ВЕСНА</button>
+            <button type="button" class="catalog-tab-button" data-gid="703775930">ЛЕТО</button>
+            <button type="button" class="catalog-tab-button" data-gid="212517103">ОСЕНЬ</button>
+        </div>
+        <div class="catalog-loading" id="catalog-loading">
+            <img src="images/loading2.gif" alt="Загрузка...">
+        </div>
+        <div class="catalog-panels" id="catalog-panels">
+            <div class="catalog-tab-panel" data-gid="727164352" style="display: block;">
+                <div class="catalog-table"></div>
+            </div>
+            <div class="catalog-tab-panel" data-gid="703775930" style="display: none;">
+                <div class="catalog-table"></div>
+            </div>
+            <div class="catalog-tab-panel" data-gid="212517103" style="display: none;">
+                <div class="catalog-table"></div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const SHEET_ID = '1630516040';//'1297754209';
-        const SHEET_HTML_URL = 'https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vQb5BPZlW4dBNxs_dlAa1myvkuMSCB6NY23yR6BlAvNPY3J0Z3Oy7zh0Ngqo8cLGfcJveCgYo6OzVdk/pubhtml/sheet?headers=false&gid=' + SHEET_ID;
+        const SHEETS = [
+            { title: 'ВЕСНА', gid: '727164352' },
+            { title: 'ЛЕТО', gid: '703775930' },
+            { title: 'ОСЕНЬ', gid: '212517103' },
+        ]
+        const SHEETS_HTML_URL = 'https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vQb5BPZlW4dBNxs_dlAa1myvkuMSCB6NY23yR6BlAvNPY3J0Z3Oy7zh0Ngqo8cLGfcJveCgYo6OzVdk/pubhtml/sheet?headers=false&gid=';
 
 const PROXY = 'https://script.google.com/macros/s/AKfycbyjdFe7Cb0IrdXxADFDJb1FgPZvoUgsag1sOwQG6TPxjcNy0BAiuqJZ7zlCczHphAAq/exec?url=';
 
@@ -267,49 +333,130 @@ async function replaceImagesWithProxy(container){
 */
 
 function loadCatalog() {
-  fetch(SHEET_HTML_URL, { cache: 'no-store' })
-    .then(r => r.text())
-    .then(data => {
-      console.log('Fetched catalog data:\n', data);
+    const container = document.getElementById('product-catalog');
+    if (!container) {
+        return;
+    }
 
-      const container = document.getElementById('product-catalog');
-      const match = data.match(/<table[\s\S]*?<\/table>/i);
-      if (!match) throw new Error('Таблица не найдена');
-      container.innerHTML = match[0];
-    
-      //replaceImagesWithProxy(container);
+    const tabsBar = container.querySelector('.catalog-tabs');
+    const panelsContainer = container.querySelector('.catalog-panels');
+    const loadingEl = container.querySelector('#catalog-loading') || container.querySelector('.catalog-loading');
 
-      addBuyButtons();
-    })
-    .catch(e => {
-      console.error(e);
-      document.getElementById('product-catalog').textContent = 'Ошибка загрузки каталога.';
+    if (!tabsBar || !panelsContainer) {
+        return;
+    }
+
+    const tabButtons = [];
+    const tabPanels = [];
+    const loadPromises = [];
+
+    SHEETS.forEach(({ title, gid }, index) => {
+        let tabButton = tabsBar.querySelector(`.catalog-tab-button[data-gid="${gid}"]`);
+        if (!tabButton) {
+            tabButton = document.createElement('button');
+            tabButton.type = 'button';
+            tabButton.className = 'catalog-tab-button';
+            tabButton.dataset.gid = gid;
+            tabsBar.appendChild(tabButton);
+        }
+        tabButton.textContent = title;
+
+        let subCatalog = panelsContainer.querySelector(`.catalog-tab-panel[data-gid="${gid}"]`);
+        if (!subCatalog) {
+            subCatalog = document.createElement('div');
+            subCatalog.className = 'catalog-tab-panel';
+            subCatalog.dataset.gid = gid;
+            panelsContainer.appendChild(subCatalog);
+        }
+
+        subCatalog.style.display = index === 0 ? 'block' : 'none';
+        tabButton.classList.toggle('active', index === 0);
+
+        let tableDiv = subCatalog.querySelector('.catalog-table');
+        if (!tableDiv) {
+            tableDiv = document.createElement('div');
+            tableDiv.className = 'catalog-table';
+            subCatalog.appendChild(tableDiv);
+        } else {
+            tableDiv.innerHTML = '';
+        }
+
+        tabButton.onclick = () => {
+            tabPanels.forEach(panel => {
+                panel.style.display = 'none';
+            });
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            subCatalog.style.display = 'block';
+            tabButton.classList.add('active');
+        };
+
+        tabButtons.push(tabButton);
+        tabPanels.push(subCatalog);
+
+        loadPromises.push(loadSubCatalog(tableDiv, title, gid));
     });
+
+    const finalizeLoading = () => {
+        if (loadingEl) {
+            loadingEl.remove();
+        }
+    };
+
+    if (loadPromises.length > 0) {
+        Promise.allSettled(loadPromises).finally(finalizeLoading);
+    } else {
+        finalizeLoading();
+    }
 }
 
+function loadSubCatalog(tableDiv, title, gid) {
+    const SHEET_URL = SHEETS_HTML_URL + gid;
+    return fetch(SHEET_URL, { cache: 'no-store' })
+        .then(r => r.text())
+        .then(data => {
+            //console.log('Fetched catalog data:\n', data);
 
+            const match = data.match(/<table[\s\S]*?<\/table>/i);
+            if (!match) throw new Error('Таблица ' + title + ' не найдена');
 
-		function addBuyButtons() {
-		    const rows = document.querySelectorAll('#product-catalog table tr');
+            tableDiv.innerHTML = match[0];
+
+            //replaceImagesWithProxy(container);
+
+            addBuyButtons(tableDiv);
+        })
+        .catch(e => {
+            console.error('Ошибка загрузки каталога', title, e);
+            tableDiv.textContent = 'Ошибка загрузки каталога ' + title;
+        });
+}
+
+		function addBuyButtons(subCatalog) {
+		    const rows = Array.from(subCatalog.querySelectorAll('table tr'));
+
+            // rows[0] is all empty 🤷‍♀️
+            if (rows[0]) {
+                const firstRow = rows[0];
+                firstRow.remove(); // strip the empty row from the table
+                rows.shift(); // from the array too.
+            }
+
 		    rows.forEach((row, index) => {
 		        const cells = row.querySelectorAll('td');
 
-                if (cells.length === 0) return; // TODO WTF? пропускаем
-
-		        // Обрабатываем строки с colspan
+                 // для заголовков разделов - меняем colspan=5 на colspan=6
 		        const firstCell = cells[0];
-
-                 // для заголовков разделов - меняем colspan=4 на colspan=5 (или 5 на 6)
 		        if (firstCell.hasAttribute('colspan') && firstCell.getAttribute('colspan') === '5') {
 		            firstCell.setAttribute('colspan', '6');
 		            return;
 		        }
 
-		        // Добавляем текст "Купить" в заголовке, если во второй колонке "Код"
-		        // if (index === 0 && cells[1]?.textContent.trim().toLowerCase() === 'код') {
-		        if (index === 1) {
-                    //console.log('Adding "Купить" header into row:', row);
-		            const buyHeaderCell = document.createElement('th'); // TODO: th OR td? Gsheet uses td for header row 🤨
+		        // Добавляем текст "Купить" в заголовке
+		        if (index === 0) {
+		            const buyHeaderCell = document.createElement('td');
+                    buyHeaderCell.className = 's0';
 		            buyHeaderCell.textContent = 'Купить';
 		            row.appendChild(buyHeaderCell);
 		            return;

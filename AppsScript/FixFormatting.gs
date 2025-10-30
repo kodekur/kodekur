@@ -1,6 +1,7 @@
 function fixFormatting() {
 //  const sh = SpreadsheetApp.getActiveSheet();
   const sh = SpreadsheetApp.getActive().getSheetByName("Импорт");
+//  const sh = SpreadsheetApp.getActive().getSheetById("992018491");
 
   const lastRow = sh.getLastRow();
   const lastCol = sh.getLastColumn();
