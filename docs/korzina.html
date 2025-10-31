@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Корзина</title>
+    <meta name=keywords content="Частная коллекция многолетних растений для средней полосы,  растения почтой, растения для сада, коллекция декоративных растений, декоративные растения, сад природного облика,  редкие растения, коллекционные растения, растения для тенистых мест, неприхотливые растения, почвопокровные растения, лианы, декоративно-лиственные растения, лекарственные растения, папоротники, злаки, реализация декоративных растений, оптовая реализация декоративных растений, цветущие кустарники, цветущие растения, цветы купить, продажа растений, цветы для сада, посадочный материал, коллекционные растения, растения у коллекционеров, коллекция флоксов, коллекция пионов, коллекция лилейников, коллекция хост, коллекционные хосты">
+
+    <title>Корзина - Коллекция Декоративных Культур</title>
+
+    <script type="text/javascript" src="/js/prototype.js"></script>
+    <script type="text/javascript" src="/js/scriptaculous.js?load=effects,builder"></script>
+    <script type="text/javascript" src="/js/lightbox.js"></script>
+    <script type="text/javascript" src="/js/menu.js" defer></script>
+
+    <link rel="stylesheet" href="/css/style.css" type="text/css"/>
+	<link rel="stylesheet" href="/css/lightbox.css" type="text/css" media="screen" />
+
+    <!-- JS to send emails via emailjs.com: -->
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #000;
-            text-align: center;
-            padding: 10px;
-        }
         th {
             background-color: #99FF99;
         }
@@ -90,6 +88,19 @@
             background-color: #ccc;
             cursor: not-allowed;
         }
+
+        table.waffle th,
+        table.waffle td,
+        #cart-table th,
+        #cart-table td {
+            border: 1px solid #000;
+        }
+
+        table.waffle {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -110,42 +121,11 @@
 	    <tr>
 
 	        <td valign="top">
-
-
-	            <ul id="nav" style="width: 250px">
-							<li><a href="/index.html">Главная</a></li>
-							<li><a href="/KODEKUR_Price.html"target="_blank">Ассортимент на 2025 год</a></li>
-							<li><a href="/opt.html"target="_blank">Для оптовиков</a></li>
-							<li><a href="javascript: toggleBlock('menuCatalog')">Каталог</a></li>
-							<span id="menuCatalog">
-								<li><a href="/arbustum.html">Декоративные кустарники</a></li>
-								<li><a href="/herbs.html">Декоративные травы</a></li>
-								<li><a href="/mnogoletnije.html">Многолетние культуры</a></li>
-								<li><a href="/conifer.html">Хвойные</a></li>
-							</span>
-							<li><a href="/contacts.html">Контакты</a></li>
-						
-						</ul>
-
-	            <br/>
-
-	            <div style="width: 250px">
-	                <script>
-	                          (function() {
-	                            var cx = '012816619450786521312:3jqswgt6k4s';
-	                            var gcse = document.createElement('script');
-	                            gcse.type = 'text/javascript';
-	                            gcse.async = true;
-	                            gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-	                                '//www.google.com/cse/cse.js?cx=' + cx;
-	                            var s = document.getElementsByTagName('script')[0];
-	                            s.parentNode.insertBefore(gcse, s);
-	                          })();
-	                        </script>
-	                <gcse:searchbox-only resultsUrl="/search.html"></gcse:searchbox-only>
+	            <div data-include="/partials/menu.html">
+	                <noscript>
+	                    <p>Для отображения меню включите, пожалуйста, JavaScript.</p>
+	                </noscript>
 	            </div>
-
-	            <br>
 
 	            <p style="font-size: 35px; font-family: cursive; text-align: center">
 	                Собственное производство
@@ -155,7 +135,7 @@
 	        <td style="text-align: center; vertical-align: top; padding-left: 10px"> <!-- Изменяемая ячейка -->
 				
     <h1>Корзина</h1>
-    <table id="cart-table">
+    <table id="cart-table" class="waffle">
         <thead>
             <tr>
                 <th>Фото</th>
