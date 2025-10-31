@@ -85,8 +85,8 @@
 	emailjs.init("i3HpqvdgITUgo3iv4");
 	
 	// Глобальный счетчик заказов в Upstash
-	const UPSTASH_REST_API = "https://divine-gobbler-16096.upstash.io/incr/orderCounter"; // URL счетчика и команда increment.
-	const UPSTASH_AUTH_TOKEN = "Bearer AT7gAAIncDJiMjAzOTdhZWVkMTM0ZTQzYjRjYWJiZjcxMzEyNGQ5ZXAyMTYwOTY"; // Ваш токен авторизации
+	const UPSTASH_REST_API = "https://relevant-crawdad-31954.upstash.io/incr/orderCounter"; // URL счетчика и команда increment.
+	const UPSTASH_AUTH_TOKEN = "Bearer AXzSAAIncDIyNmJmYWU3ZTIyNDQ0NjdmYTBlM2U4NTdiNDU4NTY5NnAyMzE5NTQ"; // Ваш токен авторизации
 
 	// Функция для увеличения счетчика
 	async function incrementCounter() {
@@ -136,7 +136,7 @@
 				// Формируем таблицу с элементами корзины
                 const cart = JSON.parse(localStorage.getItem('cart')) || {};
                 let cartHTML = '<table border="1" cellpadding="5" cellspacing="0">';
-                cartHTML += '<tr><th>Фото</th><th>Код</th><th>Наименование</th><th>Цена</th><th>Количество</th></tr>';
+                cartHTML += '<tr style="background-color: #99FF99"><th>Фото</th><th>Код</th><th>Наименование</th><th>Цена</th><th>Количество</th></tr>';
                 for (const [code, item] of Object.entries(cart)) {
 					// Обновляем путь для фото на полный
 	                const updatedPhoto = item.photo 
