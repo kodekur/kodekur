@@ -1,0 +1,239 @@
+/* Cart and catalog shared styles */
+
+/*
+Стили вложенного google sheet:
+
+s0 -- подзаголовки colspan; заголовки фото, код, цена
+s1 -- заголовки наименование, описание
+s2 -- картинки
+s3 -- коды
+s4 -- наименования
+s5 -- описания
+s6 -- цены
+s7 -- наименования -- после добавления туда ссылок
+*/
+
+.waffle .s0,
+.waffle .s1 {
+    background-color: #99ff99;
+    text-align: center;
+    font-weight: bold;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+.waffle .s0 {
+    white-space: nowrap;
+}
+
+.waffle .s1,
+.waffle .s4,
+.waffle .s5,
+.waffle .s7 {
+    white-space: normal;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+.waffle .s2 {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 0;
+}
+
+.waffle .s3 {
+    text-align: center;
+    font-weight: bold;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 2px 3px;
+}
+
+.waffle .s4 {
+    text-align: left;
+    font-weight: bold;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+.waffle .s5 {
+    text-align: left;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+.waffle .s6 {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 2px 3px;
+}
+
+.waffle .s7 {
+    text-align: left;
+    font-weight: bold;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+/* первая колонка - номера строк gsheet -- прячем. */
+th.row-headers-background.row-header-shim {
+    display: none;
+}
+
+table.waffle {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table.waffle th,
+table.waffle td {
+    border: 1px solid #000;
+}
+
+table.waffle thead {
+    background-color: #99FF99;
+}
+
+.empty-cart {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+.remove-item {
+    background-color: #FF9999;
+    border: 1px solid #000;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.remove-item:hover {
+    background-color: #FF6666;
+}
+
+.quantity {
+    width: 50px;
+    text-align: center;
+}
+
+.add-to-cart {
+    background-color: #99FF99;
+    border: 1px solid #000;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.add-to-cart:hover {
+    background-color: #77DD77;
+}
+
+.quantity-input {
+    width: 40px;
+    text-align: center;
+}
+
+.added {
+    font-size: 16px;
+    color: green;
+}
+
+.catalog-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    justify-content: center;
+}
+
+.catalog-tab-button {
+    background-color: #99FF99;
+    border: 1px solid #000;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.catalog-tab-button:hover {
+    background-color: #77DD77;
+}
+
+.catalog-tab-button.active {
+    background-color: #5FCC5F;
+    font-weight: bold;
+}
+
+.catalog-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.checkout-button {
+    background-color: #FFD700;
+    border: 1px solid #000;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.checkout-button:hover {
+    background-color: #FFC107;
+}
+
+#emailForm {
+    max-width: 400px;
+    margin: auto;
+}
+
+#emailForm label {
+    display: block;
+    margin-top: 10px;
+}
+
+#emailForm input,
+#emailForm textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+
+#emailForm button {
+    margin-top: 15px;
+    padding: 10px;
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#emailForm button:hover {
+    background-color: #45a049;
+}
+
+#emailForm button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#status {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
