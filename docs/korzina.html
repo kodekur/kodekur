@@ -53,9 +53,11 @@
 	        <td style="text-align: center; vertical-align: top; padding-left: 10px"> <!-- Изменяемая ячейка -->
 				
     <h1>Корзина</h1>
-    <table id="cart-table" class="waffle">
+
+    <!-- inline стили дублируют CSS потому что эта таблица посылается в email. TODO: correct styles for email-->
+    <table id="cart-table" class="waffle" style="border: 1px solid #000; border-collapse: collapse;">
         <thead>
-            <tr>
+            <tr style="background-color: #99FF99">
                 <th>Фото</th>
                 <th>Код</th>
                 <th>Наименование</th>
@@ -72,8 +74,11 @@
 <div id="status"></div>
 
 <form id="emailForm">
-    <label for="recipient">Ваш адрес электронной почты:</label>
-    <input type="email" id="recipient" name="recipient" required>
+    <label for="name">ФИО:</label>
+    <input type="text" id="name" name="name" required autocomplete="name" placeholder="ФИО">
+
+    <label for="recipient">Email:</label>
+    <input type="email" id="recipient" name="recipient" required autocomplete="email">
 
     <button type="submit" id="submit-button" aria-label="Отправить заказ">Отправить заказ</button>
 </form>
@@ -122,47 +127,46 @@
         e.preventDefault(); // Предотвращаем перезагрузку страницы
 
 		(async () => {
+            const name = document.getElementById("name").value;
         	const recipient = document.getElementById("recipient").value;
         	const statusDiv = document.getElementById("status");
             const orderSummaryDiv = document.getElementById("order-summary");
 
-        	// Очищаем сообщение о статусе
-        	statusDiv.textContent = "";
+            // Очищаем сообщение о статусе
+            statusDiv.textContent = "";
 
-			try {
-		        // Увеличиваем счетчик и получаем номер заказа
-		        const orderNumber = await incrementCounter();
+            try {
+                const PRICE_YEAR = "2026-";
+                // Увеличиваем счетчик и получаем номер заказа
+                const orderNumber = PRICE_YEAR + await incrementCounter();
 
-				// Формируем таблицу с элементами корзины
-                const cart = JSON.parse(localStorage.getItem('cart')) || {};
-                let cartHTML = '<table border="1" cellpadding="5" cellspacing="0">';
-                cartHTML += '<tr style="background-color: #99FF99"><th>Фото</th><th>Код</th><th>Наименование</th><th>Цена</th><th>Количество</th></tr>';
-                for (const [code, item] of Object.entries(cart)) {
-					// Обновляем путь для фото на полный
-	                const updatedPhoto = item.photo 
-                    	? item.photo.replace(/src="([^"]*)"/, 'src="https://kodekur.ru/$1"') 
-                    	: '';
+                let cartTable = document.getElementById("cart-table");
 
-	                cartHTML += `
-	                    <tr>
-	                        <td>${updatedPhoto || ''}</td>
-                            <td>${code}</td>
-                            <td>${item.description || ''}</td>
-                            <td>${item.price || ''}</td>
-                            <td>${item.quantity || ''}</td>
-                        </tr>`;
+                // Клонируем таблицу чтобы не изменять отображаемую
+                let cartClone = cartTable.cloneNode(true);
+                // в пятой колонке оставляем только текст количества
+                for (let row of cartClone.tBodies[0].rows) {
+                    let quantityCell = row.cells[4];
+                    quantityCell.textContent = quantityCell.querySelector('input').value;
                 }
-                cartHTML += '</table>';
+                // удаляем последнюю колонку с кнопками целиком (включая заголовок)
+                for (let row of cartClone.rows) {
+                    row.deleteCell(5);
+                }
+
+                let cartHTML = cartClone.outerHTML;
+                // console.log("cartHTML: ", cartHTML);
 
                 // Формируем параметры письма
                 const params = {
-                    reply_to: recipient,
+                    name: name,
+                    email: recipient,
                     order_number: orderNumber,
                     html: cartHTML, // Используем сформированную таблицу
                 };
 
 				// Отправляем письмо через EmailJS
-		        await emailjs.send("service_kodekur", "template_mq9u6qv", params);
+		        await emailjs.send("service_8tuct4a_kodekur", "template_1p16xwl", params);
 
                 // Обновляем интерфейс после успешной отправки
                 statusDiv.textContent = `Заказ успешно отправлен! Заказ №${orderNumber}`;
