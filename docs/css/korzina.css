@@ -217,25 +217,6 @@ table.waffle thead {
     width: 100%;
 }
 
-#emailForm label[for="phone-number"] + .field-wide {
-    display: flex;
-    gap: 8px;
-}
-
-#emailForm #country-code {
-    width: 150px;
-    text-align: right;
-}
-
-#emailForm label[for="phone-number"] + .field-wide #country-code {
-    flex: 0 0 150px;
-}
-
-#emailForm label[for="phone-number"] + .field-wide #phone-number {
-    flex: 1 1 auto;
-    width: auto;
-}
-
 #emailForm .delivery-options {
     display: flex;
     flex-direction: column;

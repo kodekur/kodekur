@@ -63,7 +63,7 @@
                 <th>Наименование</th>
                 <th>Цена, руб.</th>
                 <th>Количество</th>
-                <th>Действие</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -81,10 +81,7 @@
     <input type="email" id="recipient" name="recipient" class="field-wide" required autocomplete="email" placeholder="name@email.ru">
 
     <label for="phone-number">Телефон:<span class="required-indicator">*</span></label>
-    <div class="field-wide">
-        <input type="text" id="country-code" name="countryCode" value="Россия +1" required>
-        <input type="tel" id="phone-number" name="phoneNumber" required autocomplete="tel-national" placeholder="(000) 000 00 00">
-    </div>
+    <input type="tel" id="phone-number" name="phoneNumber" class="field-wide" required autocomplete="tel-national" placeholder="(000) 000 00 00">
 
     <span class="form-label">Способ доставки:<span class="required-indicator">*</span></span>
     <div class="delivery-options">
@@ -109,7 +106,7 @@
     <input type="text" id="sdek-point" name="sdekPoint" class="field-wide" placeholder="Адрес пункта выдачи" disabled>
 
     <div class="button-row">
-        <button type="submit" id="submit-button" aria-label="Отправить заказ">Отправить заказ</button>
+        <button type="submit" id="submit-button" aria-label="Отправить заказ">Оформить заказ</button>
     </div>
 </form>
 
@@ -226,9 +223,10 @@
                     let quantityCell = row.cells[4];
                     quantityCell.textContent = quantityCell.querySelector('input').value;
                 }
-                // удаляем последнюю колонку с кнопками целиком (включая заголовок)
+                // удаляем колонку с фото и последнюю колонку с кнопками целиком (включая заголовок)
                 for (let row of cartClone.rows) {
                     row.deleteCell(5);
+                    row.deleteCell(0);
                 }
 
                 let cartHTML = cartClone.outerHTML;
