@@ -74,13 +74,43 @@
 <div id="status"></div>
 
 <form id="emailForm">
-    <label for="name">ФИО:</label>
-    <input type="text" id="name" name="name" required autocomplete="name" placeholder="ФИО">
+    <label for="name">ФИО:<span class="required-indicator">*</span></label>
+    <input type="text" id="name" name="name" class="field-wide" required autocomplete="name" placeholder="Фамилия Имя Отчество">
 
-    <label for="recipient">Email:</label>
-    <input type="email" id="recipient" name="recipient" required autocomplete="email">
+    <label for="recipient">Email:<span class="required-indicator">*</span></label>
+    <input type="email" id="recipient" name="recipient" class="field-wide" required autocomplete="email" placeholder="name@email.ru">
 
-    <button type="submit" id="submit-button" aria-label="Отправить заказ">Отправить заказ</button>
+    <label for="phone-number">Телефон:<span class="required-indicator">*</span></label>
+    <div class="field-wide">
+        <input type="text" id="country-code" name="countryCode" value="Россия +1" required>
+        <input type="tel" id="phone-number" name="phoneNumber" required autocomplete="tel-national" placeholder="(000) 000 00 00">
+    </div>
+
+    <span class="form-label">Способ доставки:<span class="required-indicator">*</span></span>
+    <div class="delivery-options">
+        <label class="radio-option">
+            <input type="radio" name="deliveryMethod" value="post" required>
+            Почта России
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="deliveryMethod" value="sdek">
+            СДЭК
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="deliveryMethod" value="pickup">
+            Самовывоз
+        </label>
+    </div>
+
+    <label for="delivery-address">Адрес:<span class="required-indicator hidden" id="delivery-address-required">*</span></label>
+    <input type="text" id="delivery-address" name="deliveryAddress" class="field-wide" placeholder="Адрес доставки" autocomplete="address" disabled>
+
+    <label for="sdek-point">Пункт выдачи СДЭК:<span class="required-indicator hidden" id="sdek-point-required">*</span></label>
+    <input type="text" id="sdek-point" name="sdekPoint" class="field-wide" placeholder="Адрес пункта выдачи" disabled>
+
+    <div class="button-row">
+        <button type="submit" id="submit-button" aria-label="Отправить заказ">Отправить заказ</button>
+    </div>
 </form>
 
 <div id="order-summary" style="display:none; margin-top: 20px;"></div>
@@ -121,6 +151,53 @@
             submitButton.disabled = false;
         }
     }
+
+    const deliveryRadios = document.querySelectorAll('input[name="deliveryMethod"]');
+    const deliveryAddressInput = document.getElementById('delivery-address');
+    const sdekPointInput = document.getElementById('sdek-point');
+    const deliveryAddressRequiredIndicator = document.getElementById('delivery-address-required');
+    const sdekPointRequiredIndicator = document.getElementById('sdek-point-required');
+
+    function handleDeliveryFields() {
+        if (!deliveryAddressInput || !sdekPointInput) {
+            return;
+        }
+
+        const selectedDelivery = document.querySelector('input[name="deliveryMethod"]:checked');
+
+        deliveryAddressInput.disabled = true;
+        deliveryAddressInput.required = false;
+        sdekPointInput.disabled = true;
+        sdekPointInput.required = false;
+        if (deliveryAddressRequiredIndicator) {
+            deliveryAddressRequiredIndicator.classList.add('hidden');
+        }
+        if (sdekPointRequiredIndicator) {
+            sdekPointRequiredIndicator.classList.add('hidden');
+        }
+
+        if (!selectedDelivery) {
+            return;
+        }
+
+        if (selectedDelivery.value === 'post') {
+            deliveryAddressInput.disabled = false;
+            deliveryAddressInput.required = true;
+            if (deliveryAddressRequiredIndicator) {
+                deliveryAddressRequiredIndicator.classList.remove('hidden');
+            }
+        } else if (selectedDelivery.value === 'sdek') {
+            sdekPointInput.disabled = false;
+            sdekPointInput.required = true;
+            if (sdekPointRequiredIndicator) {
+                sdekPointRequiredIndicator.classList.remove('hidden');
+            }
+        }
+    }
+
+    deliveryRadios.forEach((radio) => {
+        radio.addEventListener('change', handleDeliveryFields);
+    });
 
 	// Обработчик формы
     document.getElementById("emailForm").addEventListener("submit", function (e) {
@@ -263,7 +340,10 @@
             loadCart();
         }
 
-        window.onload = loadCart;
+        window.addEventListener('load', () => {
+            loadCart();
+            handleDeliveryFields();
+        });
     </script>
 </td>
 </tr>

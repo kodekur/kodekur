@@ -188,27 +188,82 @@ table.waffle thead {
 }
 
 #emailForm {
-    max-width: 400px;
-    margin: auto;
+    width: max(500px, 90%);
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 170px auto;
+    column-gap: 16px;
+    row-gap: 12px;
+    align-items: center;
+    justify-items: start;
 }
 
-#emailForm label {
-    display: block;
-    margin-top: 10px;
+#emailForm label,
+#emailForm .form-label {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    font-weight: bold;    
 }
 
 #emailForm input,
-#emailForm textarea {
-    width: 100%;
+#emailForm select {
     padding: 8px;
-    margin-top: 5px;
     box-sizing: border-box;
 }
 
-#emailForm button {
-    margin-top: 15px;
-    padding: 10px;
+#emailForm .field-wide {
+    min-width: 500px;
     width: 100%;
+}
+
+#emailForm label[for="phone-number"] + .field-wide {
+    display: flex;
+    gap: 8px;
+}
+
+#emailForm #country-code {
+    width: 150px;
+    text-align: right;
+}
+
+#emailForm label[for="phone-number"] + .field-wide #country-code {
+    flex: 0 0 150px;
+}
+
+#emailForm label[for="phone-number"] + .field-wide #phone-number {
+    flex: 1 1 auto;
+    width: auto;
+}
+
+#emailForm .delivery-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#emailForm .delivery-options .radio-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+#emailForm .delivery-options .radio-option input {
+    margin: 0;
+}
+
+#emailForm .button-row {
+    grid-column: 2;
+    display: flex;
+    justify-content: flex-start;
+    justify-self: start;
+    margin-top: 8px;
+}
+
+#emailForm button {
+    width: 280px;
+    padding: 12px 24px;
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -222,6 +277,14 @@ table.waffle thead {
 #emailForm button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+.required-indicator {
+    color: #d00000;
+}
+
+.required-indicator.hidden {
+    visibility: hidden;
 }
 
 #status {
