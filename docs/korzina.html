@@ -105,6 +105,9 @@
     <label for="sdek-point">Пункт выдачи СДЭК:<span class="required-indicator hidden" id="sdek-point-required">*</span></label>
     <input type="text" id="sdek-point" name="sdekPoint" class="field-wide" placeholder="Адрес пункта выдачи" disabled>
 
+    <label for="order-comment">Комментарий:</label>
+    <textarea id="order-comment" name="orderComment" class="field-wide" placeholder="Дополнительные способы связи и комментарии к заказу" rows="3"></textarea>
+
     <div class="button-row">
         <button type="submit" id="submit-button" aria-label="Отправить заказ">Оформить заказ</button>
     </div>
@@ -230,6 +233,74 @@
                 }
 
                 let cartHTML = cartClone.outerHTML;
+
+                const deliveryForm = document.getElementById("emailForm");
+                if (deliveryForm) {
+                    const formRows = [];
+                    const textFields = [
+                        { selector: "#name", label: "ФИО" },
+                        { selector: "#recipient", label: "Email" },
+                        { selector: "#phone-number", label: "Телефон" },
+                    ];
+
+                    for (let { selector, label } of textFields) {
+                        const input = deliveryForm.querySelector(selector);
+                        if (!input) {
+                            continue;
+                        }
+                        const value = input.value.trim();
+                        if (value) {
+                            formRows.push({ label, value });
+                        }
+                    }
+
+                    const selectedDelivery = deliveryForm.querySelector('input[name="deliveryMethod"]:checked');
+                    if (selectedDelivery) {
+                        const deliveryLabels = {
+                            post: "Почта России",
+                            sdek: "СДЭК",
+                            pickup: "Самовывоз",
+                        };
+                        formRows.push({
+                            label: "Способ доставки",
+                            value: deliveryLabels[selectedDelivery.value] || selectedDelivery.value,
+                        });
+                    }
+
+                    const addressFields = [
+                        { selector: "#delivery-address", label: "Адрес" },
+                        { selector: "#sdek-point", label: "Пункт выдачи СДЭК" },
+                    ];
+
+                    for (let { selector, label } of addressFields) {
+                        const input = deliveryForm.querySelector(selector);
+                        if (!input) {
+                            continue;
+                        }
+                        const value = input.value.trim();
+                        if (value) {
+                            formRows.push({ label, value });
+                        }
+                    }
+
+                    const commentField = deliveryForm.querySelector("#order-comment");
+                    if (commentField) {
+                        const commentValue = commentField.value.trim();
+                        if (commentValue) {
+                            formRows.push({ label: "Комментарий", value: commentValue });
+                        }
+                    }
+
+                    if (formRows.length) {
+                        const rowsHTML = formRows.map(({ label, value }) => {
+                            const normalizedValue = value.includes("\n") ? value.replace(/\n/g, "<br>") : value;
+                            return `<tr><th style="border: 1px solid #000; padding: 4px 8px; text-align: right; background-color: #99FF99; width: 150px">${label}</th><td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">${normalizedValue}</td></tr>`;
+                        }
+                        ).join("");
+                        cartHTML += `<table style="margin-top: 40px; border: 1px solid #000; border-collapse: collapse; width: 100%; min-width: 600px;"><tbody>${rowsHTML}</tbody></table>`;
+                    }
+                }
+
                 // console.log("cartHTML: ", cartHTML);
 
                 // Формируем параметры письма
@@ -244,9 +315,9 @@
 		        await emailjs.send("service_8tuct4a_kodekur", "template_1p16xwl", params);
 
                 // Обновляем интерфейс после успешной отправки
-                statusDiv.textContent = `Заказ успешно отправлен! Заказ №${orderNumber}`;
+                statusDiv.textContent = `Заказ успешно оформлен и отправлен на ${recipient}`;
                 statusDiv.className = "success";
-                orderSummaryDiv.innerHTML = `<h2>Сводка заказа №${orderNumber}</h2>${cartHTML}`;
+                orderSummaryDiv.innerHTML = `<h2>Заказ №${orderNumber}</h2>${cartHTML}`;
                 orderSummaryDiv.style.display = "block";
 
                 // Очищаем корзину
