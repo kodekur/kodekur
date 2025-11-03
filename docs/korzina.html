@@ -110,6 +110,7 @@
 
     <div class="button-row">
         <button type="submit" id="submit-button" aria-label="Отправить заказ">Оформить заказ</button>
+        <img src="images/loading.gif" id="submit-loading" alt="Загрузка..." style="display:none; margin-left: 8px; vertical-align: middle;">
     </div>
 </form>
 
@@ -199,9 +200,69 @@
         radio.addEventListener('change', handleDeliveryFields);
     });
 
+    function generateFormHTML() {
+        const deliveryForm = document.getElementById("emailForm");
+        const formRows = [];
+        const textFields = [
+            { selector: "#name", label: "ФИО" },
+            { selector: "#recipient", label: "Email" },
+            { selector: "#phone-number", label: "Телефон" },
+        ];
+
+        for (let { selector, label } of textFields) {
+            const input = deliveryForm.querySelector(selector);
+            const value = input.value.trim();
+            formRows.push({ label, value });
+        }
+
+        const selectedDelivery = deliveryForm.querySelector('input[name="deliveryMethod"]:checked');
+        const deliveryLabels = {
+            post: "Почта России",
+            sdek: "СДЭК",
+            pickup: "Самовывоз",
+        };
+        formRows.push({
+            label: "Способ доставки",
+            value: deliveryLabels[selectedDelivery.value] || selectedDelivery.value,
+        });
+
+        const addressFields = [
+            { selector: "#delivery-address", label: "Адрес" },
+            { selector: "#sdek-point", label: "Пункт выдачи СДЭК" },
+        ];
+
+        for (let { selector, label } of addressFields) {
+            const input = deliveryForm.querySelector(selector);
+            const value = input.value.trim();
+            // only add address if not empty
+            if (value) {
+                formRows.push({ label, value });
+            }
+        }
+
+        const commentField = deliveryForm.querySelector("#order-comment");
+        const commentValue = commentField.value.trim();
+        formRows.push({ label: "Комментарий", value: commentValue });
+
+        const rowsHTML = formRows.map(({ label, value }) => {
+            const normalizedValue = value.includes("\n") ? value.replace(/\n/g, "<br>") : value;
+            return `<tr><th style="border: 1px solid #000; padding: 4px 8px; text-align: right; background-color: #99FF99; width: 170px">${label}</th><td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">${normalizedValue}</td></tr>`;
+        }
+        ).join("");
+        
+        const formHTML = `<table style="margin-top: 20px; border: 1px solid #000; border-collapse: collapse; width: 100%; min-width: 400px;"><tbody>${rowsHTML}</tbody></table>`;
+        return formHTML;
+    };
+
 	// Обработчик формы
     document.getElementById("emailForm").addEventListener("submit", function (e) {
         e.preventDefault(); // Предотвращаем перезагрузку страницы
+
+        const submitButton = document.getElementById("submit-button");
+        submitButton.disabled = true;
+
+        const submitLoading = document.getElementById("submit-loading");
+        submitLoading.style.display = "inline-block";
 
 		(async () => {
             const name = document.getElementById("name").value;
@@ -233,74 +294,9 @@
                 }
 
                 let cartHTML = cartClone.outerHTML;
-
-                const deliveryForm = document.getElementById("emailForm");
-                if (deliveryForm) {
-                    const formRows = [];
-                    const textFields = [
-                        { selector: "#name", label: "ФИО" },
-                        { selector: "#recipient", label: "Email" },
-                        { selector: "#phone-number", label: "Телефон" },
-                    ];
-
-                    for (let { selector, label } of textFields) {
-                        const input = deliveryForm.querySelector(selector);
-                        if (!input) {
-                            continue;
-                        }
-                        const value = input.value.trim();
-                        if (value) {
-                            formRows.push({ label, value });
-                        }
-                    }
-
-                    const selectedDelivery = deliveryForm.querySelector('input[name="deliveryMethod"]:checked');
-                    if (selectedDelivery) {
-                        const deliveryLabels = {
-                            post: "Почта России",
-                            sdek: "СДЭК",
-                            pickup: "Самовывоз",
-                        };
-                        formRows.push({
-                            label: "Способ доставки",
-                            value: deliveryLabels[selectedDelivery.value] || selectedDelivery.value,
-                        });
-                    }
-
-                    const addressFields = [
-                        { selector: "#delivery-address", label: "Адрес" },
-                        { selector: "#sdek-point", label: "Пункт выдачи СДЭК" },
-                    ];
-
-                    for (let { selector, label } of addressFields) {
-                        const input = deliveryForm.querySelector(selector);
-                        if (!input) {
-                            continue;
-                        }
-                        const value = input.value.trim();
-                        if (value) {
-                            formRows.push({ label, value });
-                        }
-                    }
-
-                    const commentField = deliveryForm.querySelector("#order-comment");
-                    if (commentField) {
-                        const commentValue = commentField.value.trim();
-                        if (commentValue) {
-                            formRows.push({ label: "Комментарий", value: commentValue });
-                        }
-                    }
-
-                    if (formRows.length) {
-                        const rowsHTML = formRows.map(({ label, value }) => {
-                            const normalizedValue = value.includes("\n") ? value.replace(/\n/g, "<br>") : value;
-                            return `<tr><th style="border: 1px solid #000; padding: 4px 8px; text-align: right; background-color: #99FF99; width: 150px">${label}</th><td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">${normalizedValue}</td></tr>`;
-                        }
-                        ).join("");
-                        cartHTML += `<table style="margin-top: 40px; border: 1px solid #000; border-collapse: collapse; width: 100%; min-width: 600px;"><tbody>${rowsHTML}</tbody></table>`;
-                    }
-                }
-
+                const formHTML = generateFormHTML();
+                cartHTML += formHTML;
+                
                 // console.log("cartHTML: ", cartHTML);
 
                 // Формируем параметры письма
@@ -308,7 +304,7 @@
                     name: name,
                     email: recipient,
                     order_number: orderNumber,
-                    html: cartHTML, // Используем сформированную таблицу
+                    html: cartHTML, // Используем сформированный HTML
                 };
 
 				// Отправляем письмо через EmailJS
@@ -326,11 +322,13 @@
 
                 // Скрываем форму
                 document.getElementById("emailForm").style.display = "none";
-
 		    } catch (error) {
 		        console.error("Ошибка:", error);
 		        statusDiv.textContent = "Ошибка при отправке письма: " + error.message;
 		        statusDiv.className = "error";
+            } finally {
+                submitLoading.style.display = "none";
+                submitButton.disabled = false;
             }
         })();
     });

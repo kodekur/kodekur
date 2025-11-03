@@ -190,6 +190,7 @@ table.waffle thead {
 #emailForm {
     width: max(500px, 90%);
     margin-top: 20px;
+    margin-bottom: 50px;
     display: grid;
     grid-template-columns: 170px auto;
     column-gap: 16px;
@@ -240,6 +241,7 @@ table.waffle thead {
     justify-content: flex-start;
     justify-self: start;
     margin-top: 8px;
+    align-items: center;
 }
 
 #emailForm button {
@@ -258,6 +260,12 @@ table.waffle thead {
 #emailForm button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+#submit-loading {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
 }
 
 .required-indicator {
