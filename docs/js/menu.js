@@ -44,14 +44,4 @@
         var targets = document.querySelectorAll('[data-include]');
         Array.prototype.forEach.call(targets, includePartial);
     });
-
-    window.toggleBlock = function (elementId) {
-        var el = document.getElementById(elementId);
-        if (!el) {
-            return;
-        }
-        var style = window.getComputedStyle ? window.getComputedStyle(el) : el.style;
-        var isHidden = style.display === 'none';
-        el.style.display = isHidden ? 'block' : 'none';
-    };
 })();
