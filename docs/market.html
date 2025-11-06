@@ -114,52 +114,15 @@
     </div>
 
     <script>
+        // TODO NEW GSHIT:
+        // https://docs.google.com/spreadsheets/d/e/2PACX-1vRoo-E5CSCKRu61wyj0BY9QcTcdsD7duVgwQ5iOCDm6oCseRcSxBD4eV-hrQIYEUqK8SRhgr21mhnKX/pubhtml?gid=1092051209&single=true
+
         const SHEETS = [
             { title: 'ВЕСНА', gid: '727164352' },
             { title: 'ЛЕТО', gid: '703775930' },
             { title: 'ОСЕНЬ', gid: '212517103' },
         ]
         const SHEETS_HTML_URL = 'https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vQb5BPZlW4dBNxs_dlAa1myvkuMSCB6NY23yR6BlAvNPY3J0Z3Oy7zh0Ngqo8cLGfcJveCgYo6OzVdk/pubhtml/sheet?headers=false&gid=';
-
-const PROXY = 'https://script.google.com/macros/s/AKfycbyjdFe7Cb0IrdXxADFDJb1FgPZvoUgsag1sOwQG6TPxjcNy0BAiuqJZ7zlCczHphAAq/exec?url=';
-
-function cleanImageUrl(url) {
-  // удаляем =w###-h###, но сохраняем всё после (например, ?key=...)
-  return url.replace(/=w\d+-h\d+/i, '');
-}
-
-function jsonp(url){
-  return new Promise((resolve, reject)=>{
-    const cb = 'cb_' + Math.random().toString(36).slice(2);
-    const s = document.createElement('script');
-    window[cb] = (data)=>{ resolve(data); delete window[cb]; s.remove(); };
-    s.onerror = reject;
-    s.src = url + '&callback=' + cb;
-    document.head.appendChild(s);
-  });
-}
-
-// после вставки таблицы:
-/* TOOD: remove?
-async function replaceImagesWithProxy(container){
-  const imgs = Array.from(container.querySelectorAll('img'));
-  const batch = 3; const sleep = ms => new Promise(r=>setTimeout(r,ms));
-  for (let i=0;i<imgs.length;i+=batch){
-    await Promise.all(imgs.slice(i,i+batch).map(async (img)=>{
-      const src = img.getAttribute('data-src') || img.src; // исходный lh3
-      img.removeAttribute('src'); img.loading='lazy';
-      try{
-        origSizeImg = cleanImageUrl(src);
-        const j = await jsonp(PROXY + encodeURIComponent(origSizeImg));
-        if (j && j.dataUrl) img.src = j.dataUrl;
-      } catch(_){
-        img.alt='load error'; img.style.outline='2px solid red';
-      }
-    }));
-    await sleep(150);
-  }
-}
-*/
 
 function loadCatalog() {
     const container = document.getElementById('product-catalog');
@@ -252,8 +215,6 @@ function loadSubCatalog(tableDiv, title, gid) {
 
             tableDiv.innerHTML = match[0];
 
-            //replaceImagesWithProxy(container);
-
             addBuyButtons(tableDiv);
         })
         .catch(e => {
@@ -300,7 +261,17 @@ function loadSubCatalog(tableDiv, title, gid) {
 		        const isPriceValid = priceCell && /\d+/.test(priceCell.textContent.trim());
 
 		        if (isCodeValid && isPriceValid) {
-		            const quantityInput = document.createElement('input');
+                    // trying to repair lost images...
+                    const img = cells[0].querySelector('img');
+                    // console.log('gsheet img=', img.outerHTML);
+                
+                    // TODO REMOVE
+                    if (img) {
+                        img.src = `/price_2026/images/${codeCell.textContent.trim()}.jpg`;
+                        console.log('new img=', img);
+                    }
+                    
+                    const quantityInput = document.createElement('input');
 		            quantityInput.type = 'number';
 		            quantityInput.value = '1';
 		            quantityInput.min = '1';
@@ -339,7 +310,6 @@ function loadSubCatalog(tableDiv, title, gid) {
 		    }
 
 		    localStorage.setItem('cart', JSON.stringify(cart));
-		    // alert(`Товар ${name} добавлен в корзину`);
 			loadCart();
 		}
 
