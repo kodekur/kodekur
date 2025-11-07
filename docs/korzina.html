@@ -11,6 +11,7 @@
     <script type="text/javascript" src="/js/scriptaculous.js?load=effects,builder"></script>
     <script type="text/javascript" src="/js/lightbox.js"></script>
     <script type="text/javascript" src="/js/menu.js" defer></script>
+    <script type="text/javascript" src="/js/korzina.js"></script>
 
     <!-- JS to send emails via emailjs.com: -->
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -109,7 +110,7 @@
     <textarea id="order-comment" name="orderComment" class="field-wide" placeholder="Дополнительные способы связи и комментарии к заказу" rows="3"></textarea>
 
     <div class="button-row">
-        <button type="submit" id="submit-button" aria-label="Отправить заказ">Оформить заказ</button>
+        <button type="submit" id="checkout-button" aria-label="Отправить заказ">Оформить заказ</button>
         <img src="images/loading.gif" id="submit-loading" alt="Загрузка..." style="display:none; margin-left: 8px; vertical-align: middle;">
     </div>
 </form>
@@ -143,16 +144,6 @@
 	    }
 	}
 
-    function toggleSubmitButton() {
-        const cart = JSON.parse(localStorage.getItem('cart')) || {};
-        const submitButton = document.getElementById('submit-button');
-        if (Object.keys(cart).length === 0) {
-            submitButton.disabled = true;
-        } else {
-            submitButton.disabled = false;
-        }
-    }
-
     const deliveryRadios = document.querySelectorAll('input[name="deliveryMethod"]');
     const deliveryAddressInput = document.getElementById('delivery-address');
     const sdekPointInput = document.getElementById('sdek-point');
@@ -160,6 +151,7 @@
     const sdekPointRequiredIndicator = document.getElementById('sdek-point-required');
 
     function handleDeliveryFields() {
+        // TODO remove if check??
         if (!deliveryAddressInput || !sdekPointInput) {
             return;
         }
@@ -258,8 +250,8 @@
     document.getElementById("emailForm").addEventListener("submit", function (e) {
         e.preventDefault(); // Предотвращаем перезагрузку страницы
 
-        const submitButton = document.getElementById("submit-button");
-        submitButton.disabled = true;
+        const checkoutButton = document.getElementById("checkout-button");
+        checkoutButton.disabled = true;
 
         const submitLoading = document.getElementById("submit-loading");
         submitLoading.style.display = "inline-block";
@@ -328,85 +320,10 @@
 		        statusDiv.className = "error";
             } finally {
                 submitLoading.style.display = "none";
-                submitButton.disabled = false;
+                checkoutButton.disabled = false;
             }
         })();
     });
-
-        function loadCart() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            const cartTableBody = document.querySelector('#cart-table tbody');
-            const emptyMessage = document.getElementById('empty-message');
-
-            // Clear the cart display
-            cartTableBody.innerHTML = '';
-
-            if (Object.keys(cart).length === 0) {
-                emptyMessage.style.display = 'block';
-            } else {
-                emptyMessage.style.display = 'none';
-            }
-
-            Object.entries(cart).forEach(([code, item]) => {
-                const row = document.createElement('tr');
-
-                const photoCell = document.createElement('td');
-                photoCell.innerHTML = item.photo;
-                row.appendChild(photoCell);
-
-                const codeCell = document.createElement('td');
-                codeCell.textContent = code;
-                row.appendChild(codeCell);
-
-                const nameCell = document.createElement('td');
-                nameCell.textContent = item.name;
-                row.appendChild(nameCell);
-
-                const priceCell = document.createElement('td');
-                priceCell.textContent = item.price;
-                row.appendChild(priceCell);
-
-                const quantityCell = document.createElement('td');
-                const quantityInput = document.createElement('input');
-                quantityInput.type = 'number';
-                quantityInput.value = item.quantity;
-                quantityInput.min = '1';
-                quantityInput.max = '10';
-                quantityInput.className = 'quantity';
-                quantityInput.addEventListener('change', () => updateQuantity(code, quantityInput.value));
-                quantityCell.appendChild(quantityInput);
-                row.appendChild(quantityCell);
-
-                const actionCell = document.createElement('td');
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Удалить';
-                removeButton.className = 'remove-item';
-                removeButton.setAttribute('aria-label', `Удалить товар с кодом ${code}`);
-                removeButton.addEventListener('click', () => {
-                    removeItem(code);
-                    toggleSubmitButton();
-                });
-                actionCell.appendChild(removeButton);
-                row.appendChild(actionCell);
-
-                cartTableBody.appendChild(row);
-            });
-
-            toggleSubmitButton();
-        }
-
-        function updateQuantity(code, newQuantity) {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            cart[code].quantity = parseInt(newQuantity);
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        function removeItem(code) {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            delete cart[code];
-            localStorage.setItem('cart', JSON.stringify(cart));
-            loadCart();
-        }
 
         window.addEventListener('load', () => {
             loadCart();

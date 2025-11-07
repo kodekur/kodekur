@@ -10,6 +10,7 @@
     <script type="text/javascript" src="/js/scriptaculous.js?load=effects,builder"></script>
     <script type="text/javascript" src="/js/lightbox.js"></script>
     <script type="text/javascript" src="/js/menu.js" defer></script>
+    <script type="text/javascript" src="/js/korzina.js"></script>
 
     <link rel="stylesheet" href="/css/style.css" type="text/css"/>
     <link rel="stylesheet" href="/css/lightbox.css" type="text/css" media="screen" />
@@ -162,7 +163,8 @@
 
                     for (let i = 5; i <= 7; i++) {
                         const seasonCell = cells[i];
-                        if (seasonCell && seasonCell.textContent.trim().toLowerCase() === 'да') {                            
+                        if (seasonCell && seasonCell.textContent.trim().toLowerCase() === 'да') {   
+// TODO dedup quantityInput with korzina.js?                         
                             const quantityInput = document.createElement('input');
                             quantityInput.type = 'number';
                             quantityInput.value = '1';
@@ -208,79 +210,6 @@
 			loadCart();
 		}
 
-        function loadCart() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            const cartTableBody = document.querySelector('#cart-table tbody');
-            const emptyMessage = document.getElementById('empty-message');
-		    const checkoutButton = document.getElementById('checkout-button');
-
-            // Clear the cart display
-            cartTableBody.innerHTML = '';
-
-            if (Object.keys(cart).length === 0) {
-                emptyMessage.style.display = 'block';
-		        checkoutButton.disabled = true; // Отключаем кнопку "Оформить заказ"
-                return;
-            }
-
-            emptyMessage.style.display = 'none';
-		    checkoutButton.disabled = false; // Активируем кнопку "Оформить заказ"
-
-            Object.entries(cart).forEach(([code, item]) => {
-                const row = document.createElement('tr');
-
-                const photoCell = document.createElement('td');
-                photoCell.innerHTML = item.photo;
-                row.appendChild(photoCell);
-
-                const codeCell = document.createElement('td');
-                codeCell.textContent = code;
-                row.appendChild(codeCell);
-
-                const nameCell = document.createElement('td');
-                nameCell.textContent = item.name;
-                row.appendChild(nameCell);
-
-                const priceCell = document.createElement('td');
-                priceCell.textContent = item.price;
-                row.appendChild(priceCell);
-
-                const quantityCell = document.createElement('td');
-                const quantityInput = document.createElement('input');
-                quantityInput.type = 'number';
-                quantityInput.value = item.quantity;
-                quantityInput.min = '1';
-                quantityInput.max = '10';
-                quantityInput.className = 'quantity';
-                quantityInput.addEventListener('change', () => updateQuantity(code, quantityInput.value));
-                quantityCell.appendChild(quantityInput);
-                row.appendChild(quantityCell);
-
-                const actionCell = document.createElement('td');
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Удалить';
-                removeButton.className = 'remove-item';
-                removeButton.addEventListener('click', () => removeItem(code));
-                actionCell.appendChild(removeButton);
-                row.appendChild(actionCell);
-
-                cartTableBody.appendChild(row);
-            });
-        }
-
-        function updateQuantity(code, newQuantity) {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            cart[code].quantity = parseInt(newQuantity);
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        function removeItem(code) {
-            const cart = JSON.parse(localStorage.getItem('cart')) || {};
-            delete cart[code];
-            localStorage.setItem('cart', JSON.stringify(cart));
-            loadCart();
-        }
-		
         function toggleCart() {
             const cartContainer = document.getElementById('cart-container');
             const toggleButton = document.querySelector('.toggle-button');
