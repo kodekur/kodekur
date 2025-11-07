@@ -164,13 +164,7 @@
                     for (let i = 5; i <= 7; i++) {
                         const seasonCell = cells[i];
                         if (seasonCell && seasonCell.textContent.trim().toLowerCase() === 'да') {   
-// TODO dedup quantityInput with korzina.js?                         
-                            const quantityInput = document.createElement('input');
-                            quantityInput.type = 'number';
-                            quantityInput.value = '1';
-                            quantityInput.min = '1';
-                            quantityInput.max = '10';
-                            quantityInput.className = 'quantity-input';
+                            const quantityInput = newQuantityInput();
 
                             const buyButton = document.createElement('button');
                             buyButton.textContent = 'Добавить';
@@ -178,7 +172,7 @@
                             buyButton.onclick = function () {
                                 // Заменяем содержимое ячейки на текст "✅ Добавлено"
                                 seasonCell.innerHTML = '<span class="added">✅ Добавлено</span>';
-                                addToCartFromRow(row, quantityInput.value);
+                                addToCartFromCatalogRow(row, quantityInput.value);
                             };
 
                             // TODO  add season id somehow
@@ -189,25 +183,6 @@
                     }
 		        }
 		    });
-		}
-
-		function addToCartFromRow(row, quantity) {
-		    const cells = row.querySelectorAll('td');
-		    const photo = cells[0].innerHTML;
-		    const code = cells[1].textContent;
-		    const name = cells[2].textContent;
-		    const price = cells[4].textContent;
-
-		    const cart = JSON.parse(localStorage.getItem('cart')) || {};
-
-		    if (cart[code]) {
-		        cart[code].quantity += parseInt(quantity);
-		    } else {
-		        cart[code] = { photo, name, price, quantity: parseInt(quantity) };
-		    }
-
-		    localStorage.setItem('cart', JSON.stringify(cart));
-			loadCart();
 		}
 
         function toggleCart() {

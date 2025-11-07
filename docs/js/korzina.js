@@ -40,12 +40,7 @@ function loadCart() {
         row.appendChild(priceCell);
 
         const quantityCell = document.createElement('td');
-        const quantityInput = document.createElement('input');
-        quantityInput.type = 'number';
-        quantityInput.value = item.quantity;
-        quantityInput.min = '1';
-        quantityInput.max = '10';
-        quantityInput.className = 'quantity';
+        const quantityInput = newQuantityInput(item.quantity);
         quantityInput.addEventListener('change', () => updateQuantity(code, quantityInput.value));
         quantityCell.appendChild(quantityInput);
         row.appendChild(quantityCell);
@@ -66,6 +61,16 @@ function loadCart() {
     });
 }
 
+function newQuantityInput(value) {
+    const quantityInput = document.createElement('input');
+    quantityInput.type = 'number';
+    quantityInput.value = value || 1;
+    quantityInput.min = '1';
+    quantityInput.max = '10';
+    quantityInput.className = 'quantity-input';
+    return quantityInput;
+}
+
 function updateQuantity(code, newQuantity) {
     const cart = getCart();
     cart[code].quantity = parseInt(newQuantity, 10);
@@ -75,6 +80,25 @@ function updateQuantity(code, newQuantity) {
 function removeItem(code) {
     const cart = getCart();
     delete cart[code];
+    saveCart(cart);
+    loadCart();
+}
+
+function addToCartFromCatalogRow(row, quantity) {
+    const cells = row.querySelectorAll('td');
+    const photo = cells[0].innerHTML;
+    const code = cells[1].textContent;
+    const name = cells[2].textContent;
+    const price = cells[4].textContent;
+
+    const cart = getCart();
+
+    if (cart[code]) {
+        cart[code].quantity += parseInt(quantity);
+    } else {
+        cart[code] = { photo, name, price, quantity: parseInt(quantity) };
+    }
+
     saveCart(cart);
     loadCart();
 }

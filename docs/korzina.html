@@ -151,23 +151,14 @@
     const sdekPointRequiredIndicator = document.getElementById('sdek-point-required');
 
     function handleDeliveryFields() {
-        // TODO remove if check??
-        if (!deliveryAddressInput || !sdekPointInput) {
-            return;
-        }
-
         const selectedDelivery = document.querySelector('input[name="deliveryMethod"]:checked');
 
         deliveryAddressInput.disabled = true;
         deliveryAddressInput.required = false;
         sdekPointInput.disabled = true;
         sdekPointInput.required = false;
-        if (deliveryAddressRequiredIndicator) {
-            deliveryAddressRequiredIndicator.classList.add('hidden');
-        }
-        if (sdekPointRequiredIndicator) {
-            sdekPointRequiredIndicator.classList.add('hidden');
-        }
+        deliveryAddressRequiredIndicator.classList.add('hidden');
+        sdekPointRequiredIndicator.classList.add('hidden');
 
         if (!selectedDelivery) {
             return;
@@ -176,15 +167,11 @@
         if (selectedDelivery.value === 'post') {
             deliveryAddressInput.disabled = false;
             deliveryAddressInput.required = true;
-            if (deliveryAddressRequiredIndicator) {
-                deliveryAddressRequiredIndicator.classList.remove('hidden');
-            }
+            deliveryAddressRequiredIndicator.classList.remove('hidden');
         } else if (selectedDelivery.value === 'sdek') {
             sdekPointInput.disabled = false;
             sdekPointInput.required = true;
-            if (sdekPointRequiredIndicator) {
-                sdekPointRequiredIndicator.classList.remove('hidden');
-            }
+            sdekPointRequiredIndicator.classList.remove('hidden');
         }
     }
 
@@ -325,11 +312,11 @@
         })();
     });
 
-        window.addEventListener('load', () => {
-            loadCart();
-            handleDeliveryFields();
-        });
-    </script>
+    window.addEventListener('load', () => {
+        loadCart();
+        handleDeliveryFields();
+    });
+</script>
 </td>
 </tr>
 </table>

@@ -114,11 +114,6 @@ table.waffle thead {
     background-color: #FF6666;
 }
 
-.quantity {
-    width: 50px;
-    text-align: center;
-}
-
 .add-to-cart {
     background-color: #99FF99;
     border: 1px solid #000;
