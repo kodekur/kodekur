@@ -371,6 +371,7 @@
                 quantityInput.type = 'number';
                 quantityInput.value = item.quantity;
                 quantityInput.min = '1';
+                quantityInput.max = '10';
                 quantityInput.className = 'quantity';
                 quantityInput.addEventListener('change', () => updateQuantity(code, quantityInput.value));
                 quantityCell.appendChild(quantityInput);

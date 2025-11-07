@@ -92,139 +92,41 @@
 
     <h2>Каталог растений</h2>
 	<div id="product-catalog">
-        <div class="catalog-tabs" id="catalog-tabs">
-            <button type="button" class="catalog-tab-button active" data-gid="727164352">ВЕСНА</button>
-            <button type="button" class="catalog-tab-button" data-gid="703775930">ЛЕТО</button>
-            <button type="button" class="catalog-tab-button" data-gid="212517103">ОСЕНЬ</button>
-        </div>
-        <div class="catalog-loading" id="catalog-loading">
+        <div id="catalog-loading">
             <img src="images/loading2.gif" alt="Загрузка...">
         </div>
-        <div class="catalog-panels" id="catalog-panels">
-            <div class="catalog-tab-panel" data-gid="727164352" style="display: block;">
-                <div class="catalog-table"></div>
-            </div>
-            <div class="catalog-tab-panel" data-gid="703775930" style="display: none;">
-                <div class="catalog-table"></div>
-            </div>
-            <div class="catalog-tab-panel" data-gid="212517103" style="display: none;">
-                <div class="catalog-table"></div>
-            </div>
-        </div>
+        <div id="catalog-table"></div>
     </div>
 
     <script>
-        // TODO NEW GSHIT:
-        // https://docs.google.com/spreadsheets/d/e/2PACX-1vRoo-E5CSCKRu61wyj0BY9QcTcdsD7duVgwQ5iOCDm6oCseRcSxBD4eV-hrQIYEUqK8SRhgr21mhnKX/pubhtml?gid=1092051209&single=true
+        // пример использования: if (hasDigits(fifthCell.textContent)) { ... }
+        const hasDigits = value => /\d/.test(value || '');
+        
+        const SHEETS_HTML_URL = 'https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vRoo-E5CSCKRu61wyj0BY9QcTcdsD7duVgwQ5iOCDm6oCseRcSxBD4eV-hrQIYEUqK8SRhgr21mhnKX/pubhtml/sheet?headers=false&gid=1092051209&single=true';
 
-        const SHEETS = [
-            { title: 'ВЕСНА', gid: '727164352' },
-            { title: 'ЛЕТО', gid: '703775930' },
-            { title: 'ОСЕНЬ', gid: '212517103' },
-        ]
-        const SHEETS_HTML_URL = 'https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vQb5BPZlW4dBNxs_dlAa1myvkuMSCB6NY23yR6BlAvNPY3J0Z3Oy7zh0Ngqo8cLGfcJveCgYo6OzVdk/pubhtml/sheet?headers=false&gid=';
+        async function loadCatalog() {
+            const tableDiv = document.getElementById('catalog-table');
+            const loadingEl = document.getElementById('catalog-loading');
 
-function loadCatalog() {
-    const container = document.getElementById('product-catalog');
-    if (!container) {
-        return;
-    }
+            try {
+                const response = await fetch(SHEETS_HTML_URL, { cache: 'no-store' });
+                const data = await response.text();
+                const match = data.match(/<table[\s\S]*?<\/table>/i);
+                if (!match) throw new Error('Таблица не найдена: ' + SHEETS_HTML_URL);
 
-    const tabsBar = container.querySelector('.catalog-tabs');
-    const panelsContainer = container.querySelector('.catalog-panels');
-    const loadingEl = container.querySelector('#catalog-loading') || container.querySelector('.catalog-loading');
-
-    if (!tabsBar || !panelsContainer) {
-        return;
-    }
-
-    const tabButtons = [];
-    const tabPanels = [];
-    const loadPromises = [];
-
-    SHEETS.forEach(({ title, gid }, index) => {
-        let tabButton = tabsBar.querySelector(`.catalog-tab-button[data-gid="${gid}"]`);
-        if (!tabButton) {
-            tabButton = document.createElement('button');
-            tabButton.type = 'button';
-            tabButton.className = 'catalog-tab-button';
-            tabButton.dataset.gid = gid;
-            tabsBar.appendChild(tabButton);
-        }
-        tabButton.textContent = title;
-
-        let subCatalog = panelsContainer.querySelector(`.catalog-tab-panel[data-gid="${gid}"]`);
-        if (!subCatalog) {
-            subCatalog = document.createElement('div');
-            subCatalog.className = 'catalog-tab-panel';
-            subCatalog.dataset.gid = gid;
-            panelsContainer.appendChild(subCatalog);
+                console.log('catalog HTML:\n', match[0]);
+                tableDiv.innerHTML = match[0];
+                addBuyButtons(tableDiv);
+            } catch (e) {
+                console.error('Ошибка загрузки каталога', e);
+                tableDiv.textContent = 'Ошибка загрузки каталога';
+            } finally {
+                loadingEl?.remove();
+            }
         }
 
-        subCatalog.style.display = index === 0 ? 'block' : 'none';
-        tabButton.classList.toggle('active', index === 0);
-
-        let tableDiv = subCatalog.querySelector('.catalog-table');
-        if (!tableDiv) {
-            tableDiv = document.createElement('div');
-            tableDiv.className = 'catalog-table';
-            subCatalog.appendChild(tableDiv);
-        } else {
-            tableDiv.innerHTML = '';
-        }
-
-        tabButton.onclick = () => {
-            tabPanels.forEach(panel => {
-                panel.style.display = 'none';
-            });
-            tabButtons.forEach(button => {
-                button.classList.remove('active');
-            });
-            subCatalog.style.display = 'block';
-            tabButton.classList.add('active');
-        };
-
-        tabButtons.push(tabButton);
-        tabPanels.push(subCatalog);
-
-        loadPromises.push(loadSubCatalog(tableDiv, title, gid));
-    });
-
-    const finalizeLoading = () => {
-        if (loadingEl) {
-            loadingEl.remove();
-        }
-    };
-
-    if (loadPromises.length > 0) {
-        Promise.allSettled(loadPromises).finally(finalizeLoading);
-    } else {
-        finalizeLoading();
-    }
-}
-
-function loadSubCatalog(tableDiv, title, gid) {
-    const SHEET_URL = SHEETS_HTML_URL + gid;
-    return fetch(SHEET_URL, { cache: 'no-store' })
-        .then(r => r.text())
-        .then(data => {
-            //console.log('Fetched catalog data:\n', data);
-
-            const match = data.match(/<table[\s\S]*?<\/table>/i);
-            if (!match) throw new Error('Таблица ' + title + ' не найдена');
-
-            tableDiv.innerHTML = match[0];
-
-            addBuyButtons(tableDiv);
-        })
-        .catch(e => {
-            console.error('Ошибка загрузки каталога', title, e);
-            tableDiv.textContent = 'Ошибка загрузки каталога ' + title;
-        });
-}
-
-		function addBuyButtons(subCatalog) {
-		    const rows = Array.from(subCatalog.querySelectorAll('table tr'));
+		function addBuyButtons(catalogDiv) {
+		    const rows = Array.from(catalogDiv.querySelectorAll('table tr'));
 
             // rows[0] is all empty 🤷‍♀️
             if (rows[0]) {
@@ -236,61 +138,54 @@ function loadSubCatalog(tableDiv, title, gid) {
 		    rows.forEach((row, index) => {
 		        const cells = row.querySelectorAll('td');
 
-                 // для заголовков разделов - меняем colspan=5 на colspan=6
-		        const firstCell = cells[0];
-		        if (firstCell.hasAttribute('colspan') && firstCell.getAttribute('colspan') === '5') {
-		            firstCell.setAttribute('colspan', '6');
-		            return;
-		        }
-
-		        // Добавляем текст "Купить" в заголовке
-		        if (index === 0) {
-		            const buyHeaderCell = document.createElement('td');
-                    buyHeaderCell.className = 's0';
-		            buyHeaderCell.textContent = 'Купить';
-		            row.appendChild(buyHeaderCell);
-		            return;
-		        }
-
-		        // Проверяем, содержит ли вторая колонка числовой код и пятая колонка цену (или слово НЕТ)
-		        const codeCell = cells[1];
+		        // Проверяем, содержит ли пятая колонка цену
 		        const priceCell = cells[4];
-		        const buyCell = document.createElement('td'); // Создаем ячейку для кнопки или пустоты
 
-		        const isCodeValid = codeCell && /^[0-9]+$/.test(codeCell.textContent.trim());
-		        const isPriceValid = priceCell && /\d+/.test(priceCell.textContent.trim());
+		        const hasPrice = priceCell && hasDigits(priceCell.textContent);
 
-		        if (isCodeValid && isPriceValid) {
+		        if (hasPrice) {
                     // trying to repair lost images...
-                    const img = cells[0].querySelector('img');
+    		        const firstCell = cells[0];
+
+                    // const img = firstCell.querySelector('img');
                     // console.log('gsheet img=', img.outerHTML);
-                
                     // TODO REMOVE
-                    if (img) {
-                        img.src = `/price_2026/images/${codeCell.textContent.trim()}.jpg`;
-                        console.log('new img=', img);
-                    }
+                    // if (img) {
+                    const img = document.createElement('img');
+                    firstCell.innerHTML = ''; // clear existing content
+                    firstCell.appendChild(img);
+                    img.src = `/price_2026/images/${cells[1].textContent.trim()}.jpg`;
+                    // console.log('new img=', img);
+                    // }
                     
-                    const quantityInput = document.createElement('input');
-		            quantityInput.type = 'number';
-		            quantityInput.value = '1';
-		            quantityInput.min = '1';
-		            quantityInput.className = 'quantity-input';
+                    // Добавляем кнопку Добавить там где "да" в 5,6,7 колонках
 
-		            const buyButton = document.createElement('button');
-		            buyButton.textContent = 'Добавить';
-		            buyButton.className = 'add-to-cart';
-		            buyButton.onclick = function () {
-		                // Заменяем содержимое ячейки на текст "✅ Добавлено"
-		                buyCell.innerHTML = '<span class="added">✅ Добавлено</span>';
-		                addToCartFromRow(row, quantityInput.value);
-		            };
+                    for (let i = 5; i <= 7; i++) {
+                        const seasonCell = cells[i];
+                        if (seasonCell && seasonCell.textContent.trim().toLowerCase() === 'да') {                            
+                            const quantityInput = document.createElement('input');
+                            quantityInput.type = 'number';
+                            quantityInput.value = '1';
+                            quantityInput.min = '1';
+                            quantityInput.max = '10';
+                            quantityInput.className = 'quantity-input';
 
-		            buyCell.appendChild(quantityInput);
-		            buyCell.appendChild(buyButton);
+                            const buyButton = document.createElement('button');
+                            buyButton.textContent = 'Добавить';
+                            buyButton.className = 'add-to-cart';
+                            buyButton.onclick = function () {
+                                // Заменяем содержимое ячейки на текст "✅ Добавлено"
+                                seasonCell.innerHTML = '<span class="added">✅ Добавлено</span>';
+                                addToCartFromRow(row, quantityInput.value);
+                            };
+
+                            // TODO  add season id somehow
+                            seasonCell.innerHTML = ''; // убираем "да"
+                            seasonCell.appendChild(quantityInput);
+                            seasonCell.appendChild(buyButton);
+                        }
+                    }
 		        }
-
-		        row.appendChild(buyCell); // Добавляем ячейку в любом случае
 		    });
 		}
 
@@ -355,6 +250,7 @@ function loadSubCatalog(tableDiv, title, gid) {
                 quantityInput.type = 'number';
                 quantityInput.value = item.quantity;
                 quantityInput.min = '1';
+                quantityInput.max = '10';
                 quantityInput.className = 'quantity';
                 quantityInput.addEventListener('change', () => updateQuantity(code, quantityInput.value));
                 quantityCell.appendChild(quantityInput);
