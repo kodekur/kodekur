@@ -57,21 +57,7 @@
 
     <p class="back-link"><a href="/market.html">&lt;&lt; Назад в Ассортимент</a></p>
 
-    <!-- inline стили дублируют CSS потому что эта таблица посылается в email. TODO: correct styles for email-->
-    <table id="cart-table" class="waffle" style="border: 1px solid #000; border-collapse: collapse;">
-        <thead>
-            <tr style="background-color: #99FF99">
-                <th>Фото</th>
-                <th>Код</th>
-                <th>Наименование</th>
-                <th>Цена, руб.</th>
-                <th>Количество</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <table id="cart-table"></table>
     <p class="empty-cart" id="empty-message">Ваша корзина пуста.</p>
 
 <div id="status"></div>
@@ -231,7 +217,7 @@
         }
         ).join("");
         
-        const formHTML = `<table style="margin-top: 20px; border: 1px solid #000; border-collapse: collapse; width: 100%; min-width: 400px;"><tbody>${rowsHTML}</tbody></table>`;
+        const formHTML = `<table style="margin-top: 50px; border: 1px solid #000; border-collapse: collapse; width: 100%; min-width: 400px;"><tbody>${rowsHTML}</tbody></table>`;
         return formHTML;
     };
 
@@ -263,13 +249,23 @@
 
                 // Клонируем таблицу чтобы не изменять отображаемую
                 let cartClone = cartTable.cloneNode(true);
+                
                 // в пятой колонке оставляем только текст количества
-                for (let row of cartClone.tBodies[0].rows) {
+                for (let row of cartClone.tBodies[0].rows) { // пропускаем заголовок
+                    if (row.cells.length === 1) {
+                        // пропускаем подзаголовки
+                        continue;
+                    }
                     let quantityCell = row.cells[4];
                     quantityCell.textContent = quantityCell.querySelector('input').value;
                 }
+
                 // удаляем колонку с фото и последнюю колонку с кнопками целиком (включая заголовок)
                 for (let row of cartClone.rows) {
+                    if (row.cells.length === 1) {
+                        // пропускаем подзаголовки
+                        continue;
+                    }
                     row.deleteCell(5);
                     row.deleteCell(0);
                 }
@@ -298,8 +294,7 @@
                 orderSummaryDiv.style.display = "block";
 
                 // Очищаем корзину
-                localStorage.removeItem('cart');
-                loadCart();
+                clearCart();
 
                 // Скрываем форму
                 document.getElementById("emailForm").style.display = "none";

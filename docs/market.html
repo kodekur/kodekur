@@ -70,21 +70,8 @@
 
   
     <span><b>КОРЗИНА: </b></span><button class="add-to-cart toggle-button" onclick="toggleCart()">Развернуть корзину</button>
-    <div class="cart-container" id="cart-container" style="display: none">
-        <table id="cart-table" class="waffle">
-            <thead>
-                <tr>
-                    <th class="s0">Фото</th>
-                    <th class="s0">Код</th>
-                    <th class="s1">Наименование</th>
-                    <th class="s0">Цена, руб.</th>
-                    <th class="s0">Количество</th>
-                    <th class="s0">Действие</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+    <div id="cart-container" style="display: none">
+        <table id="cart-table"></table>
         <p class="empty-cart" id="empty-message">Ваша корзина пуста.</p>
     </div>
 	<button id="checkout-button" class="checkout-button" onclick="window.location.href='korzina.html'" disabled>

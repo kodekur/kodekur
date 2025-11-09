@@ -11,6 +11,14 @@ const SEASON_LABELS = {
 };
 
 const SEASON_KEYS = Object.keys(SEASON_LABELS);
+const CART_HEADER_LABELS = [
+    'Фото',
+    'Код',
+    'Наименование',
+    'Цена, руб.',
+    'Количество',
+    '',
+];
 
 /*
   Формат хранения корзины в localStorage:
@@ -26,13 +34,47 @@ function saveCart(cart) {
     localStorage.setItem('cart', JSON.stringify(cart));
 }
 
+function clearCart() {
+    localStorage.removeItem('cart');
+    loadCart();
+}
+
+function styleCartCell(cell) {
+    cell.style.border = '1px solid #000';
+    cell.style.padding = '4px 8px';
+    cell.style.textAlign = 'center';
+}
+
+function createCartTableStructure(cartTable) {
+    cartTable.style.borderCollapse = 'collapse';
+    cartTable.style.width = '100%';
+    cartTable.style.border = '1px solid #000';
+    cartTable.style.marginTop = '20px';
+
+    const tableHead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headerRow.style.backgroundColor = '#99FF99';
+    CART_HEADER_LABELS.forEach((label) => {
+        const headerCell = document.createElement('th');
+        headerCell.textContent = label;
+        styleCartCell(headerCell);
+        headerCell.style.whiteSpace = 'nowrap';
+        headerRow.appendChild(headerCell);
+    });
+    tableHead.appendChild(headerRow);
+    cartTable.appendChild(tableHead);
+
+    const tableBody = document.createElement('tbody');
+    cartTable.appendChild(tableBody);
+    return tableBody;
+}
+
 function loadCart() {
     const cart = getCart();
-    const cartTableBody = document.querySelector('#cart-table tbody');
+    const cartTable = document.getElementById('cart-table');
+    cartTable.innerHTML = '';
     const emptyMessage = document.querySelector('#empty-message');
     const checkoutButton = document.querySelector('#checkout-button');
-
-    cartTableBody.innerHTML = '';
 
     const isCartEmpty = !SEASON_KEYS.some((season) => {
         const seasonItems = cart[season];
@@ -45,6 +87,8 @@ function loadCart() {
     if (isCartEmpty) {
         return;
     }
+
+    const cartTableBody = createCartTableStructure(cartTable);
 
     SEASON_KEYS.forEach((season) => {
         const seasonItems = cart[season];
@@ -62,6 +106,7 @@ function loadCart() {
         const headerCell = document.createElement('td');
         headerCell.colSpan = 6;
         headerCell.textContent = SEASON_LABELS[season];
+        styleCartCell(headerCell);
         headerRow.appendChild(headerCell);
         cartTableBody.appendChild(headerRow);
 
@@ -70,24 +115,32 @@ function loadCart() {
 
             const photoCell = document.createElement('td');
             photoCell.innerHTML = item.photo;
+            styleCartCell(photoCell);
+            photoCell.style.padding = '0px';
             row.appendChild(photoCell);
 
             const codeCell = document.createElement('td');
             codeCell.textContent = code;
+            styleCartCell(codeCell);
             row.appendChild(codeCell);
 
             const nameCell = document.createElement('td');
             nameCell.textContent = item.name;
+            styleCartCell(nameCell);
+            nameCell.style.textAlign = 'left';
             row.appendChild(nameCell);
 
             const priceCell = document.createElement('td');
             priceCell.textContent = item.price;
+            styleCartCell(priceCell);
+            priceCell.style.textAlign = 'right';
             row.appendChild(priceCell);
 
             const quantityCell = document.createElement('td');
             const quantityInput = newQuantityInput(item.quantity);
             quantityInput.addEventListener('change', () => updateQuantity(season, code, quantityInput.value));
             quantityCell.appendChild(quantityInput);
+            styleCartCell(quantityCell);
             row.appendChild(quantityCell);
 
             const actionCell = document.createElement('td');
@@ -100,6 +153,7 @@ function loadCart() {
             });
 
             actionCell.appendChild(removeButton);
+            styleCartCell(actionCell);
             row.appendChild(actionCell);
 
             cartTableBody.appendChild(row);
