@@ -136,15 +136,23 @@
                 rows.shift(); // from the array too.
             }
 
-		    rows.forEach((row, index) => {
-		        const cells = row.querySelectorAll('td');
+            // Заголовки "Фото", "Код" etc - остаются на верху при прокрутке.
+            const stickyHeader = rows[0];
+            stickyHeader.querySelectorAll('td, th').forEach((cell) => {
+                cell.style.position = 'sticky';
+                cell.style.top = '0';
+                cell.style.zIndex = '2';
+            });
 
-		        // Проверяем, содержит ли пятая колонка цену
-		        const priceCell = cells[4];
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('td');
 
-		        const hasPrice = priceCell && hasDigits(priceCell.textContent);
+                // Проверяем, содержит ли пятая колонка цену
+                const priceCell = cells[4];
 
-		        if (hasPrice) {
+                const hasPrice = priceCell && hasDigits(priceCell.textContent);
+
+                if (hasPrice) {
                     // trying to repair lost images...
     		        const firstCell = cells[0];
 
