@@ -115,14 +115,14 @@
                 const match = data.match(/<table[\s\S]*?<\/table>/i);
                 if (!match) throw new Error('Таблица не найдена: ' + SHEETS_HTML_URL);
 
-                console.log('catalog HTML:\n', match[0]);
+                // console.log('catalog HTML:\n', match[0]);
                 tableDiv.innerHTML = match[0];
                 addBuyButtons(tableDiv);
             } catch (e) {
                 console.error('Ошибка загрузки каталога', e);
                 tableDiv.textContent = 'Ошибка загрузки каталога';
             } finally {
-                loadingEl?.remove();
+                loadingEl.remove();
             }
         }
 

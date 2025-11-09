@@ -53,7 +53,9 @@
 	        </td>
 	        <td style="text-align: center; vertical-align: top; padding-left: 10px"> <!-- Изменяемая ячейка -->
 				
-    <h1>Корзина</h1>
+    <h2>КОРЗИНА</h2>
+
+    <p class="back-link"><a href="/market.html">&lt;&lt; Назад в Ассортимент</a></p>
 
     <!-- inline стили дублируют CSS потому что эта таблица посылается в email. TODO: correct styles for email-->
     <table id="cart-table" class="waffle" style="border: 1px solid #000; border-collapse: collapse;">
@@ -100,7 +102,7 @@
         </label>
     </div>
 
-    <label for="delivery-address">Адрес:<span class="required-indicator hidden" id="delivery-address-required">*</span></label>
+    <label for="delivery-address">Почтовый адрес:<span class="required-indicator hidden" id="delivery-address-required">*</span></label>
     <input type="text" id="delivery-address" name="deliveryAddress" class="field-wide" placeholder="Адрес доставки" autocomplete="address" disabled>
 
     <label for="sdek-point">Пункт выдачи СДЭК:<span class="required-indicator hidden" id="sdek-point-required">*</span></label>
@@ -206,7 +208,7 @@
         });
 
         const addressFields = [
-            { selector: "#delivery-address", label: "Адрес" },
+            { selector: "#delivery-address", label: "Почтовый адрес" },
             { selector: "#sdek-point", label: "Пункт выдачи СДЭК" },
         ];
 

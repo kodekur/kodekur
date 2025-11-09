@@ -97,6 +97,21 @@ table.waffle thead {
     background-color: #99FF99;
 }
 
+#catalog-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+}
+
+/* Cart-specific styles: */
+
+.back-link {
+    text-align: left;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
 .empty-cart {
     text-align: center;
     font-size: 18px;
@@ -139,13 +154,6 @@ table.waffle thead {
     color: green;
 }
 
-#catalog-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px 0;
-}
-
 .checkout-button {
     background-color: #FFD700;
     border: 1px solid #000;
@@ -164,8 +172,8 @@ table.waffle thead {
     margin-top: 20px;
     margin-bottom: 50px;
     display: grid;
-    grid-template-columns: 170px auto;
-    column-gap: 16px;
+    grid-template-columns: 200px auto;
+    column-gap: 8px;
     row-gap: 12px;
     align-items: center;
     justify-items: start;
@@ -176,7 +184,7 @@ table.waffle thead {
     justify-self: end;
     display: flex;
     align-items: center;
-    font-weight: bold;    
+    font-weight: bold;
 }
 
 #emailForm input,

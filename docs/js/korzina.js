@@ -114,6 +114,7 @@ function newQuantityInput(value) {
     quantityInput.min = '1';
     quantityInput.max = '10';
     quantityInput.className = 'quantity-input';
+    quantityInput.name = 'quantity[]'; // to supress form validation error
     return quantityInput;
 }
 
