@@ -159,28 +159,26 @@
                     // console.log('new img=', img);
                     // }
                     
-                    // Добавляем кнопку Добавить там где "да" в 5,6,7 колонках
-
-                    for (let i = 5; i <= 7; i++) {
-                        const seasonCell = cells[i];
-                        if (seasonCell && seasonCell.textContent.trim().toLowerCase() === 'да') {   
+                    // Добавляем кнопку "В корзину" там где "да" в 5,6,7 колонках
+                    GSHEET_TO_SEASON.forEach(([colIndex, seasonKey]) => {
+                        const seasonCell = cells[colIndex];
+                        if (seasonCell.textContent.trim().toLowerCase() === 'да') {   
                             const quantityInput = newQuantityInput();
 
                             const buyButton = document.createElement('button');
-                            buyButton.textContent = 'Добавить';
+                            buyButton.textContent = 'В корзину';
                             buyButton.className = 'add-to-cart';
                             buyButton.onclick = function () {
                                 // Заменяем содержимое ячейки на текст "✅ Добавлено"
-                                seasonCell.innerHTML = '<span class="added">✅ Добавлено</span>';
-                                addToCartFromCatalogRow(row, quantityInput.value);
+                                seasonCell.innerHTML = '<span class="added">✅<br/>Добавлено</span>';
+                                addToCartFromCatalogRow(row, quantityInput.value, seasonKey);
                             };
 
-                            // TODO  add season id somehow
                             seasonCell.innerHTML = ''; // убираем "да"
                             seasonCell.appendChild(quantityInput);
                             seasonCell.appendChild(buyButton);
                         }
-                    }
+                    });
 		        }
 		    });
 		}
