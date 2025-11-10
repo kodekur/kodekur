@@ -1,0 +1,271 @@
+/* Cart and catalog shared styles */
+
+/*
+Стили вложенного google sheet:
+
+s0 -- подзаголовки colspan; заголовки фото, код, цена
+s1 -- заголовки наименование, описание
+s2 -- картинки
+s3 -- коды
+s4 -- наименования
+s5 -- описания
+s6 -- цены
+s7 -- наименования -- после добавления туда ссылок
+*/
+
+.waffle .s0,
+.waffle .s1 {
+    background-color: #99ff99;
+    text-align: center;
+    font-weight: bold;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+.waffle .s0 {
+    white-space: nowrap;
+}
+
+.waffle .s1,
+.waffle .s4,
+.waffle .s5,
+.waffle .s7 {
+    white-space: normal;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+.waffle .s2 {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 0;
+}
+
+.waffle .s3 {
+    text-align: center;
+    font-weight: bold;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 2px 3px;
+}
+
+.waffle .s4 {
+    text-align: left;
+    font-weight: bold;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+.waffle .s5 {
+    text-align: left;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+.waffle .s6 {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 2px 3px;
+}
+
+.waffle .s7 {
+    text-align: left;
+    font-weight: bold;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+/* первая колонка - номера строк gsheet -- прячем. */
+th.row-headers-background.row-header-shim {
+    display: none;
+}
+
+table.waffle {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table.waffle th,
+table.waffle td {
+    border: 1px solid #000;
+}
+
+table.waffle thead {
+    background-color: #99FF99;
+}
+
+#catalog-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+}
+
+/* Cart-specific styles: */
+
+.back-link {
+    text-align: left;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.empty-cart {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+.remove-item {
+    background-color: #FF9999;
+    border: 1px solid #000;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.remove-item:hover {
+    background-color: #FF6666;
+}
+
+.add-to-cart {
+    background-color: #99FF99;
+    border: 1px solid #000;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.add-to-cart:hover {
+    background-color: #77DD77;
+}
+
+.quantity-input {
+    width: 40px;
+    text-align: center;
+    display: block;
+    margin: 0 auto 0.2em;
+}
+
+.added {
+    font-size: 16px;
+    color: green;
+}
+
+.checkout-button {
+    background-color: #FFD700;
+    border: 1px solid #000;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.checkout-button:hover {
+    background-color: #FFC107;
+}
+
+#emailForm {
+    width: max(500px, 90%);
+    margin-top: 20px;
+    margin-bottom: 50px;
+    display: grid;
+    grid-template-columns: 200px auto;
+    column-gap: 8px;
+    row-gap: 12px;
+    align-items: center;
+    justify-items: start;
+}
+
+#emailForm label,
+#emailForm .form-label {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+}
+
+#emailForm input,
+#emailForm select {
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+#emailForm .field-wide {
+    min-width: 500px;
+    width: 100%;
+}
+
+#emailForm .delivery-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#emailForm .delivery-options .radio-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+#emailForm .delivery-options .radio-option input {
+    margin: 0;
+}
+
+#emailForm .button-row {
+    grid-column: 2;
+    display: flex;
+    justify-content: flex-start;
+    justify-self: start;
+    margin-top: 8px;
+    align-items: center;
+}
+
+#emailForm button {
+    width: 280px;
+    padding: 12px 24px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#emailForm button:hover {
+    background-color: #45a049;
+}
+
+#emailForm button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#submit-loading {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+}
+
+.required-indicator {
+    color: #d00000;
+}
+
+.required-indicator.hidden {
+    visibility: hidden;
+}
+
+#status {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}

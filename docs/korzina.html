@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name=keywords content="Частная коллекция многолетних растений для средней полосы,  растения почтой, растения для сада, коллекция декоративных растений, декоративные растения, сад природного облика,  редкие растения, коллекционные растения, растения для тенистых мест, неприхотливые растения, почвопокровные растения, лианы, декоративно-лиственные растения, лекарственные растения, папоротники, злаки, реализация декоративных растений, оптовая реализация декоративных растений, цветущие кустарники, цветущие растения, цветы купить, продажа растений, цветы для сада, посадочный материал, коллекционные растения, растения у коллекционеров, коллекция флоксов, коллекция пионов, коллекция лилейников, коллекция хост, коллекционные хосты">
+
+    <title>Корзина - Коллекция Декоративных Культур</title>
+
+    <script type="text/javascript" src="/js/prototype.js"></script>
+    <script type="text/javascript" src="/js/scriptaculous.js?load=effects,builder"></script>
+    <script type="text/javascript" src="/js/lightbox.js"></script>
+    <script type="text/javascript" src="/js/menu.js" defer></script>
+    <script type="text/javascript" src="/js/korzina.js"></script>
+
+    <!-- JS to send emails via emailjs.com: -->
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <link rel="stylesheet" href="/css/style.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/lightbox.css" type="text/css" media="screen" />
+
+    <!-- стили для market.html & korzina.html -->
+    <link rel="stylesheet" href="/css/korzina.css" type="text/css"/>
+</head>
+
+<body bgcolor="#CCFFCC" link="#c71585" vlink="#2f4f4f">
+	<table border="0" width="100%">
+	    <tr> <!-- начало 1й строки -->
+	        <td width="250px"> <!-- начало 1й ячейки -->
+	            <p> <img src="/Emblema.jpg" border="0" hspace="0" vspace="0"> </p>
+	        </td> <!-- конец 1й ячейки -->
+	        <td style="font-size: 40px; font-family: cursive" style="padding-left: 10px"> <!-- начало 2й ячейки -->
+	            <span class="green">КО</span>ллекция<br/>
+	            <span class="green">ДЕ</span>коративных<br/>
+	            <span class="green">КУ</span>льту<span class="green">Р</span>
+
+	        </td> <!-- конец 2й ячейки -->
+	    </tr> <!-- конец 1й строки -->
+
+	    <tr>
+
+	        <td valign="top">
+	            <div id="menu-include"></div>
+
+	            <p style="font-size: 35px; font-family: cursive; text-align: center">
+	                Собственное производство
+	            </p>
+
+	        </td>
+	        <td style="text-align: center; vertical-align: top; padding-left: 10px"> <!-- Изменяемая ячейка -->
+				
+    <h2>КОРЗИНА</h2>
+
+    <p class="back-link"><a href="/market.html">&lt;&lt; Назад в Ассортимент</a></p>
+
+    <table id="cart-table"></table>
+    <p class="empty-cart" id="empty-message">Ваша корзина пуста.</p>
+
+<div id="status"></div>
+
+<form id="emailForm">
+    <label for="name">ФИО:<span class="required-indicator">*</span></label>
+    <input type="text" id="name" name="name" class="field-wide" required autocomplete="name" placeholder="Фамилия Имя Отчество">
+
+    <label for="recipient">Email:<span class="required-indicator">*</span></label>
+    <input type="email" id="recipient" name="recipient" class="field-wide" required autocomplete="email" placeholder="name@email.ru">
+
+    <label for="phone-number">Телефон:<span class="required-indicator">*</span></label>
+    <input type="tel" id="phone-number" name="phoneNumber" class="field-wide" required autocomplete="tel-national" placeholder="(000) 000 00 00">
+
+    <span class="form-label">Способ доставки:<span class="required-indicator">*</span></span>
+    <div class="delivery-options">
+        <label class="radio-option">
+            <input type="radio" name="deliveryMethod" value="post" required>
+            Почта России
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="deliveryMethod" value="sdek">
+            СДЭК
+        </label>
+        <label class="radio-option">
+            <input type="radio" name="deliveryMethod" value="pickup">
+            Самовывоз
+        </label>
+    </div>
+
+    <label for="delivery-address">Почтовый адрес:<span class="required-indicator hidden" id="delivery-address-required">*</span></label>
+    <input type="text" id="delivery-address" name="deliveryAddress" class="field-wide" placeholder="Адрес доставки" autocomplete="address" disabled>
+
+    <label for="sdek-point">Пункт выдачи СДЭК:<span class="required-indicator hidden" id="sdek-point-required">*</span></label>
+    <input type="text" id="sdek-point" name="sdekPoint" class="field-wide" placeholder="Адрес пункта выдачи" disabled>
+
+    <label for="order-comment">Комментарий:</label>
+    <textarea id="order-comment" name="orderComment" class="field-wide" placeholder="Дополнительные способы связи и комментарии к заказу" rows="3"></textarea>
+
+    <div class="button-row">
+        <button type="submit" id="checkout-button" aria-label="Отправить заказ">Оформить заказ</button>
+        <img src="images/loading.gif" id="submit-loading" alt="Загрузка..." style="display:none; margin-left: 8px; vertical-align: middle;">
+    </div>
+</form>
+
+<div id="order-summary" style="display:none; margin-top: 20px;"></div>
+
+<script type="text/javascript">
+    // Инициализация EmailJS с Public Key
+	emailjs.init("i3HpqvdgITUgo3iv4");
+	
+	// Глобальный счетчик заказов в Upstash
+	const UPSTASH_REST_API = "https://relevant-crawdad-31954.upstash.io/incr";
+	const UPSTASH_AUTH_TOKEN = "Bearer AXzSAAIncDIyNmJmYWU3ZTIyNDQ0NjdmYTBlM2U4NTdiNDU4NTY5NnAyMzE5NTQ"; // токен авторизации
+    const ORDER_COUNTER_YEAR = "2026";
+
+	// Функция для увеличения счетчика
+	async function incrementCounter(season) {
+        const counterName = `orderCounter${ORDER_COUNTER_YEAR}${season}`;
+	    const response = await fetch(`${UPSTASH_REST_API}/${counterName}`, {
+	        method: "GET",
+	        headers: {
+	            Authorization: UPSTASH_AUTH_TOKEN,
+	        },
+	    });
+
+	    const data = await response.json();
+        console.log("Ответ сервера:", data);
+	    if (response.ok) {
+	        return data.result; // Возвращает новое значение счетчика
+	    } else {
+            console.error("Ошибка запроса к Upstash:", data.error);
+	        throw new Error(data.error || "Ошибка при обращении к Upstash");
+	    }
+	}
+
+    const deliveryRadios = document.querySelectorAll('input[name="deliveryMethod"]');
+    const deliveryAddressInput = document.getElementById('delivery-address');
+    const sdekPointInput = document.getElementById('sdek-point');
+    const deliveryAddressRequiredIndicator = document.getElementById('delivery-address-required');
+    const sdekPointRequiredIndicator = document.getElementById('sdek-point-required');
+
+    function handleDeliveryFields() {
+        const selectedDelivery = document.querySelector('input[name="deliveryMethod"]:checked');
+
+        deliveryAddressInput.disabled = true;
+        deliveryAddressInput.required = false;
+        sdekPointInput.disabled = true;
+        sdekPointInput.required = false;
+        deliveryAddressRequiredIndicator.classList.add('hidden');
+        sdekPointRequiredIndicator.classList.add('hidden');
+
+        if (!selectedDelivery) {
+            return;
+        }
+
+        if (selectedDelivery.value === 'post') {
+            deliveryAddressInput.disabled = false;
+            deliveryAddressInput.required = true;
+            deliveryAddressRequiredIndicator.classList.remove('hidden');
+        } else if (selectedDelivery.value === 'sdek') {
+            sdekPointInput.disabled = false;
+            sdekPointInput.required = true;
+            sdekPointRequiredIndicator.classList.remove('hidden');
+        }
+    }
+
+    deliveryRadios.forEach((radio) => {
+        radio.addEventListener('change', handleDeliveryFields);
+    });
+
+    function generateFormHTML() {
+        const deliveryForm = document.getElementById("emailForm");
+        const formRows = [];
+        const textFields = [
+            { selector: "#name", label: "ФИО" },
+            { selector: "#recipient", label: "Email" },
+            { selector: "#phone-number", label: "Телефон" },
+        ];
+
+        for (let { selector, label } of textFields) {
+            const input = deliveryForm.querySelector(selector);
+            const value = input.value.trim();
+            formRows.push({ label, value });
+        }
+
+        const selectedDelivery = deliveryForm.querySelector('input[name="deliveryMethod"]:checked');
+        const deliveryLabels = {
+            post: "Почта России",
+            sdek: "СДЭК",
+            pickup: "Самовывоз",
+        };
+        formRows.push({
+            label: "Способ доставки",
+            value: deliveryLabels[selectedDelivery.value] || selectedDelivery.value,
+        });
+
+        const addressFields = [
+            { selector: "#delivery-address", label: "Почтовый адрес" },
+            { selector: "#sdek-point", label: "Пункт выдачи СДЭК" },
+        ];
+
+        for (let { selector, label } of addressFields) {
+            const input = deliveryForm.querySelector(selector);
+            const value = input.value.trim();
+            // only add address if not empty
+            if (value) {
+                formRows.push({ label, value });
+            }
+        }
+
+        const commentField = deliveryForm.querySelector("#order-comment");
+        const commentValue = commentField.value.trim();
+        formRows.push({ label: "Комментарий", value: commentValue });
+
+        const rowsHTML = formRows.map(({ label, value }) => {
+            const normalizedValue = value.includes("\n") ? value.replace(/\n/g, "<br>") : value;
+            return `<tr><th style="border: 1px solid #000; padding: 4px 8px; text-align: right; background-color: #99FF99; width: 200px">${label}</th><td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">${normalizedValue}</td></tr>`;
+        }
+        ).join("");
+        
+        const formHTML = `<table style="margin-top: 50px; margin-bottom: 30px; border: 1px solid #000; border-collapse: collapse; width: 100%; min-width: 400px;"><tbody>${rowsHTML}</tbody></table>`;
+        return formHTML;
+    };
+
+	// Обработчик формы
+    document.getElementById("emailForm").addEventListener("submit", function (e) {
+        e.preventDefault(); // Предотвращаем перезагрузку страницы
+
+        const checkoutButton = document.getElementById("checkout-button");
+        checkoutButton.disabled = true;
+
+        const submitLoading = document.getElementById("submit-loading");
+        submitLoading.style.display = "inline-block";
+
+		(async () => {
+            const name = document.getElementById("name").value;
+        	const recipient = document.getElementById("recipient").value;
+        	const statusDiv = document.getElementById("status");
+
+            // Очищаем сообщение о статусе
+            statusDiv.textContent = "";
+
+            try {
+                let cartTable = document.getElementById("cart-table");
+
+                // Клонируем таблицу чтобы не изменять отображаемую
+                let cartClone = cartTable.cloneNode(true);
+
+                // в пятой колонке оставляем только текст количества
+                Array.from(cartClone.tBodies).forEach((tbody) => {
+                    for (let row of tbody.rows) { // пропускаем заголовок
+                        if (row.cells.length === 1) {
+                            // пропускаем подзаголовки
+                            continue;
+                        }
+                        let quantityCell = row.cells[4];
+                        quantityCell.textContent = quantityCell.querySelector('input').value;
+                    }
+                });
+
+                // удаляем колонку с фото и последнюю колонку с кнопками целиком (включая заголовок)
+                for (let row of cartClone.rows) {
+                    if (row.cells.length === 1) {
+                        // пропускаем подзаголовки
+                        continue;
+                    }
+                    row.deleteCell(5);
+                    row.deleteCell(0);
+                }
+
+                const seasonSections = [];
+                const orderNumbers = [];
+
+                // разбиваем cartClone на сезоны.
+                for (const season of SEASON_KEYS) {
+                    const seasonBody = cartClone.querySelector(`#cart-body-${season}`);
+                    if (seasonBody && seasonBody.rows.length > 1) {
+                        const seasonCart = cartClone.cloneNode(true);
+
+                        // tBodies нельзя присвоить новое значение, но можно удалить лишние.
+                        Array.from(seasonCart.tBodies).forEach((tbody) => {
+                            if (tbody.id !== seasonBody.id) {
+                                tbody.remove();
+                            }
+                        });
+
+                        const seasonCounter = await incrementCounter(season);
+                        const orderNumber = `${ORDER_COUNTER_YEAR}-${SEASON_LABELS[season]}-${seasonCounter}`;
+                        orderNumbers.push(orderNumber);
+                        seasonSections.push(`<h2>Заказ №${orderNumber}</h2>${seasonCart.outerHTML}`);
+                    }
+                }
+
+                const cartHTMLBody = seasonSections.join('<br/>');
+                const formHTML = generateFormHTML();
+                const fullCartHTML = `${cartHTMLBody}${formHTML}`;
+                
+                // console.log("cartHTML: ", cartHTML);
+
+                // Формируем параметры письма
+                const params = {
+                    name: name,
+                    email: recipient,
+                    order_number: orderNumbers.join(', '),
+                    html: fullCartHTML, // Используем сформированный HTML
+                };
+
+				// Отправляем письмо через EmailJS
+		        await emailjs.send("service_8tuct4a_kodekur", "template_1p16xwl", params);
+
+                // Обновляем интерфейс после успешной отправки
+                statusDiv.textContent = `Заказ успешно оформлен и отправлен на ${recipient}`;
+                statusDiv.className = "success";
+
+                const orderSummaryDiv = document.getElementById("order-summary");
+                orderSummaryDiv.innerHTML = `${fullCartHTML}`;
+                orderSummaryDiv.style.display = "block";
+
+                // Очищаем корзину
+                clearCart();
+
+                // Скрываем форму
+                document.getElementById("emailForm").style.display = "none";
+		    } catch (error) {
+		        console.error("Ошибка:", error);
+		        statusDiv.textContent = "Ошибка при отправке письма: " + error.message;
+		        statusDiv.className = "error";
+            } finally {
+                submitLoading.style.display = "none";
+                checkoutButton.disabled = false;
+            }
+        })();
+    });
+
+    window.addEventListener('load', () => {
+        loadCart();
+        handleDeliveryFields();
+    });
+</script>
+</td>
+</tr>
+</table>
+</body>
+</html>
