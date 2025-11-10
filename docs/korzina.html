@@ -245,16 +245,18 @@
 
                 // Клонируем таблицу чтобы не изменять отображаемую
                 let cartClone = cartTable.cloneNode(true);
-                
+
                 // в пятой колонке оставляем только текст количества
-                for (let row of cartClone.tBodies[0].rows) { // пропускаем заголовок
-                    if (row.cells.length === 1) {
-                        // пропускаем подзаголовки
-                        continue;
+                Array.from(cartClone.tBodies).forEach((tbody) => {
+                    for (let row of tbody.rows) { // пропускаем заголовок
+                        if (row.cells.length === 1) {
+                            // пропускаем подзаголовки
+                            continue;
+                        }
+                        let quantityCell = row.cells[4];
+                        quantityCell.textContent = quantityCell.querySelector('input').value;
                     }
-                    let quantityCell = row.cells[4];
-                    quantityCell.textContent = quantityCell.querySelector('input').value;
-                }
+                });
 
                 // удаляем колонку с фото и последнюю колонку с кнопками целиком (включая заголовок)
                 for (let row of cartClone.rows) {
@@ -266,7 +268,25 @@
                     row.deleteCell(0);
                 }
 
-                let cartHTML = cartClone.outerHTML;
+                // разбиваем cartClone на сезоны.
+                let seasonCarts = SEASON_KEYS.map((season) => {
+                    const seasonBody = cartClone.querySelector(`#cart-body-${season}`);
+                    if (seasonBody && seasonBody.rows.length > 1) {
+                        const seasonCart = cartClone.cloneNode(true);
+
+                        // tBodies нельзя присвоить новое значение, но можно удалить лишние.
+                        Array.from(seasonCart.tBodies).forEach((tbody) => {
+                            if (tbody.id !== seasonBody.id) {
+                                tbody.remove();
+                            }
+                        });
+
+                        return seasonCart.outerHTML;
+                    }
+                });
+
+                // Фильтруем непустые сезоны и объединяем их
+                let cartHTML = seasonCarts.filter(Boolean).join('<br/>');
                 const formHTML = generateFormHTML();
                 cartHTML += formHTML;
                 

@@ -45,7 +45,7 @@ function styleCartCell(cell) {
     cell.style.textAlign = 'center';
 }
 
-function createCartTableStructure(cartTable) {
+function initCartTable(cartTable) {
     cartTable.style.borderCollapse = 'collapse';
     cartTable.style.width = '100%';
     cartTable.style.border = '1px solid #000';
@@ -63,10 +63,6 @@ function createCartTableStructure(cartTable) {
     });
     tableHead.appendChild(headerRow);
     cartTable.appendChild(tableHead);
-
-    const tableBody = document.createElement('tbody');
-    cartTable.appendChild(tableBody);
-    return tableBody;
 }
 
 function loadCart() {
@@ -88,7 +84,7 @@ function loadCart() {
         return;
     }
 
-    const cartTableBody = createCartTableStructure(cartTable);
+    initCartTable(cartTable);
 
     SEASON_KEYS.forEach((season) => {
         const seasonItems = cart[season];
@@ -101,6 +97,11 @@ function loadCart() {
             return;
         }
 
+        // каждый сезон -- отдельный tbody.
+        const seasonBody = document.createElement('tbody');
+        seasonBody.id = `cart-body-${season}`;
+        cartTable.appendChild(seasonBody);
+
         const headerRow = document.createElement('tr');
         headerRow.style.backgroundColor = '#99FF99';
         const headerCell = document.createElement('td');
@@ -108,7 +109,7 @@ function loadCart() {
         headerCell.textContent = SEASON_LABELS[season];
         styleCartCell(headerCell);
         headerRow.appendChild(headerCell);
-        cartTableBody.appendChild(headerRow);
+        seasonBody.appendChild(headerRow);
 
         itemsEntries.forEach(([code, item]) => {
             const row = document.createElement('tr');
@@ -156,7 +157,7 @@ function loadCart() {
             styleCartCell(actionCell);
             row.appendChild(actionCell);
 
-            cartTableBody.appendChild(row);
+            seasonBody.appendChild(row);
         });
     });
 }
