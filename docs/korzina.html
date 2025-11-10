@@ -102,16 +102,18 @@
 <div id="order-summary" style="display:none; margin-top: 20px;"></div>
 
 <script type="text/javascript">
-    // Инициализация EmailJS с вашим Public Key
+    // Инициализация EmailJS с Public Key
 	emailjs.init("i3HpqvdgITUgo3iv4");
 	
 	// Глобальный счетчик заказов в Upstash
-	const UPSTASH_REST_API = "https://relevant-crawdad-31954.upstash.io/incr/orderCounter"; // URL счетчика и команда increment.
-	const UPSTASH_AUTH_TOKEN = "Bearer AXzSAAIncDIyNmJmYWU3ZTIyNDQ0NjdmYTBlM2U4NTdiNDU4NTY5NnAyMzE5NTQ"; // Ваш токен авторизации
+	const UPSTASH_REST_API = "https://relevant-crawdad-31954.upstash.io/incr";
+	const UPSTASH_AUTH_TOKEN = "Bearer AXzSAAIncDIyNmJmYWU3ZTIyNDQ0NjdmYTBlM2U4NTdiNDU4NTY5NnAyMzE5NTQ"; // токен авторизации
+    const ORDER_COUNTER_YEAR = "2026";
 
 	// Функция для увеличения счетчика
-	async function incrementCounter() {
-	    const response = await fetch(UPSTASH_REST_API, {
+	async function incrementCounter(season) {
+        const counterName = `orderCounter${ORDER_COUNTER_YEAR}${season}`;
+	    const response = await fetch(`${UPSTASH_REST_API}/${counterName}`, {
 	        method: "GET",
 	        headers: {
 	            Authorization: UPSTASH_AUTH_TOKEN,
@@ -209,11 +211,11 @@
 
         const rowsHTML = formRows.map(({ label, value }) => {
             const normalizedValue = value.includes("\n") ? value.replace(/\n/g, "<br>") : value;
-            return `<tr><th style="border: 1px solid #000; padding: 4px 8px; text-align: right; background-color: #99FF99; width: 170px">${label}</th><td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">${normalizedValue}</td></tr>`;
+            return `<tr><th style="border: 1px solid #000; padding: 4px 8px; text-align: right; background-color: #99FF99; width: 200px">${label}</th><td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">${normalizedValue}</td></tr>`;
         }
         ).join("");
         
-        const formHTML = `<table style="margin-top: 50px; border: 1px solid #000; border-collapse: collapse; width: 100%; min-width: 400px;"><tbody>${rowsHTML}</tbody></table>`;
+        const formHTML = `<table style="margin-top: 50px; margin-bottom: 30px; border: 1px solid #000; border-collapse: collapse; width: 100%; min-width: 400px;"><tbody>${rowsHTML}</tbody></table>`;
         return formHTML;
     };
 
@@ -231,16 +233,11 @@
             const name = document.getElementById("name").value;
         	const recipient = document.getElementById("recipient").value;
         	const statusDiv = document.getElementById("status");
-            const orderSummaryDiv = document.getElementById("order-summary");
 
             // Очищаем сообщение о статусе
             statusDiv.textContent = "";
 
             try {
-                const PRICE_YEAR = "2026-";
-                // Увеличиваем счетчик и получаем номер заказа
-                const orderNumber = PRICE_YEAR + await incrementCounter();
-
                 let cartTable = document.getElementById("cart-table");
 
                 // Клонируем таблицу чтобы не изменять отображаемую
@@ -268,8 +265,11 @@
                     row.deleteCell(0);
                 }
 
+                const seasonSections = [];
+                const orderNumbers = [];
+
                 // разбиваем cartClone на сезоны.
-                let seasonCarts = SEASON_KEYS.map((season) => {
+                for (const season of SEASON_KEYS) {
                     const seasonBody = cartClone.querySelector(`#cart-body-${season}`);
                     if (seasonBody && seasonBody.rows.length > 1) {
                         const seasonCart = cartClone.cloneNode(true);
@@ -281,14 +281,16 @@
                             }
                         });
 
-                        return seasonCart.outerHTML;
+                        const seasonCounter = await incrementCounter(season);
+                        const orderNumber = `${ORDER_COUNTER_YEAR}-${SEASON_LABELS[season]}-${seasonCounter}`;
+                        orderNumbers.push(orderNumber);
+                        seasonSections.push(`<h2>Заказ №${orderNumber}</h2>${seasonCart.outerHTML}`);
                     }
-                });
+                }
 
-                // Фильтруем непустые сезоны и объединяем их
-                let cartHTML = seasonCarts.filter(Boolean).join('<br/>');
+                const cartHTMLBody = seasonSections.join('<br/>');
                 const formHTML = generateFormHTML();
-                cartHTML += formHTML;
+                const fullCartHTML = `${cartHTMLBody}${formHTML}`;
                 
                 // console.log("cartHTML: ", cartHTML);
 
@@ -296,8 +298,8 @@
                 const params = {
                     name: name,
                     email: recipient,
-                    order_number: orderNumber,
-                    html: cartHTML, // Используем сформированный HTML
+                    order_number: orderNumbers.join(', '),
+                    html: fullCartHTML, // Используем сформированный HTML
                 };
 
 				// Отправляем письмо через EmailJS
@@ -306,7 +308,9 @@
                 // Обновляем интерфейс после успешной отправки
                 statusDiv.textContent = `Заказ успешно оформлен и отправлен на ${recipient}`;
                 statusDiv.className = "success";
-                orderSummaryDiv.innerHTML = `<h2>Заказ №${orderNumber}</h2>${cartHTML}`;
+
+                const orderSummaryDiv = document.getElementById("order-summary");
+                orderSummaryDiv.innerHTML = `${fullCartHTML}`;
                 orderSummaryDiv.style.display = "block";
 
                 // Очищаем корзину

@@ -199,7 +199,7 @@ function addToCartFromCatalogRow(row, quantity, season) {
     const code = cells[1].textContent;
     const name = cells[2].textContent;
     const price = cells[4].textContent;
-    const normalizedSeason = season; //SEASON_KEYS.includes(season) ? season : 'spring';
+    const normalizedSeason = season;
     const parsedQuantity = parseInt(quantity);
 
     const cart = getCart();
