@@ -135,6 +135,7 @@ function loadCart() {
             priceCell.textContent = item.price;
             styleCartCell(priceCell);
             priceCell.style.textAlign = 'right';
+            priceCell.style.whiteSpace = 'nowrap';
             row.appendChild(priceCell);
 
             const quantityCell = document.createElement('td');
