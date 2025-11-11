@@ -195,19 +195,12 @@
                 const hasPrice = priceCell && hasDigits(priceCell.textContent);
 
                 if (hasPrice) {
-                    // trying to repair lost images...
-    		        const firstCell = cells[0];
-
-                    // const img = firstCell.querySelector('img');
-                    // console.log('gsheet img=', img.outerHTML);
-                    // TODO REMOVE
-                    // if (img) {
+                    // images... 🤦‍♀️
                     const img = document.createElement('img');
-                    firstCell.innerHTML = ''; // clear existing content
-                    firstCell.appendChild(img);
                     img.src = `/price_2026/images/${cells[1].textContent.trim()}.jpg`;
-                    // console.log('new img=', img);
-                    // }
+                    const firstCell = cells[0];
+                    firstCell.innerHTML = '';
+                    firstCell.appendChild(img);
                     
                     // Добавляем кнопку "В корзину" там где "да" в 5,6,7 колонках
                     GSHEET_TO_SEASON.forEach(([colIndex, seasonKey]) => {
