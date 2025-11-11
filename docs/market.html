@@ -101,8 +101,7 @@
         // пример использования: if (hasDigits(fifthCell.textContent)) { ... }
         const hasDigits = value => /\d/.test(value || '');
         
-//        const SHEETS_HTML_URL = 'https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vRoo-E5CSCKRu61wyj0BY9QcTcdsD7duVgwQ5iOCDm6oCseRcSxBD4eV-hrQIYEUqK8SRhgr21mhnKX/pubhtml/sheet?headers=false&gid=1092051209&single=true';
-        const SHEETS_HTML_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSaYr6LO0wVdVEnmvqdQa7aEf95bK80-LooveTLV7HsLhpsau5sinwRS1uchYwUqszejWNdSdVCRHwa/pubhtml/sheet?headers=false&gid=1092051209&single=true';
+        const SHEETS_HTML_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTTtHAJNH7OCmHvWk6DB8N4t5ddgM74H_P5dcbX4Jq4Glv7Oyy2P08HLiuf6-qu2EwXSIxsfyDC_JZ/pubhtml/sheet?headers=false&gid=0&single=true'; // "VERY NEW kodekur_price 2026"
 
         async function loadCatalog() {
             const tableDiv = document.getElementById('catalog-table');
@@ -114,8 +113,10 @@
                 const match = data.match(/<table[\s\S]*?<\/table>/i);
                 if (!match) throw new Error('Таблица не найдена: ' + SHEETS_HTML_URL);
 
+                const myTable = transformGsheetTable(match[0]);
+
                 // console.log('catalog HTML:\n', match[0]);
-                tableDiv.innerHTML = match[0];
+                tableDiv.innerHTML = myTable;
                 addBuyButtons(tableDiv);
             } catch (e) {
                 console.error('Ошибка загрузки каталога', e);
@@ -125,15 +126,57 @@
             }
         }
 
+        function transformGsheetTable(gsheetTable) {
+            // console.log('gsheetTable HTML:\n', gsheetTable);
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = gsheetTable;
+            const table = tempContainer.querySelector('table');
+
+            const rows = Array.from(table.querySelectorAll('tr'));
+
+            // rows[0] (thead) is all empty 🤷‍♀️
+            table.tHead.remove();
+
+            Array.from(table.rows).forEach((row, i) => {
+                const cells = row.cells;
+                let isColspan = false;
+                if (i > 0) {
+                    // subheaders:
+                    const subheader = cells[1];
+                    if (subheader && subheader.textContent.trim().length > 0) {
+                        cells[2].textContent = subheader.textContent.trim();
+                        cells[2].className = "s0";
+                        cells[2].colSpan = 8;
+                        // remove everything beyond the merged cell so the row stays consistent
+                        Array.from(cells)
+                            .slice(3)          // cells[3] .. cells[n]
+                            .forEach((cell) => cell.remove());
+                        isColspan = true;
+                    }
+
+                    // ссылки:
+                    const nameCell = cells[4];
+                    const linkCell = cells[5];
+                    // if (linkCell) console.log('nameCell=', nameCell.textContent, 'linkCell=', linkCell.textContent);
+                    if (linkCell && linkCell.textContent.trim().startsWith('http')) {
+                        const urlText = linkCell.textContent.trim();
+                        nameCell.innerHTML = `<a target="_blank" href="${urlText}">${nameCell.textContent}</a>`;
+                    }
+                }
+
+                // всегда удаляем колонки "Раздел" (1) и "Ссылка" (5)
+                if (!isColspan) {
+                    cells[5].remove(); // remove "Ссылка" column
+                }
+                cells[1].remove(); // remove "Раздел" column
+            });
+
+            // console.log('transformed gsheet:\n', table);
+            return table.outerHTML;
+        }
+
 		function addBuyButtons(catalogDiv) {
 		    const rows = Array.from(catalogDiv.querySelectorAll('table tr'));
-
-            // rows[0] is all empty 🤷‍♀️
-            if (rows[0]) {
-                const firstRow = rows[0];
-                firstRow.remove(); // strip the empty row from the table
-                rows.shift(); // from the array too.
-            }
 
             // Заголовки "Фото", "Код" etc - остаются на верху при прокрутке.
             const stickyHeader = rows[0];

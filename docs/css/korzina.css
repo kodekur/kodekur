@@ -11,6 +11,17 @@ s4 -- наименования
 s5 -- описания
 s6 -- цены
 s7 -- наименования -- после добавления туда ссылок
+
+Стили НОВОГО google sheet:
+
+s0 -- подзаголовки colspan; заголовки фото, код, цена
+s1 -- заголовки наименование, описание
+s7 -- картинки
+s8 -- коды
+s10 -- наименования
+s6 -- описания
+s7 -- цены
+s8 -- сезоны
 */
 
 .waffle .s0,
@@ -28,21 +39,20 @@ s7 -- наименования -- после добавления туда сс�
 
 .waffle .s1,
 .waffle .s4,
-.waffle .s5,
-.waffle .s7 {
+.waffle .s6 {
     white-space: normal;
     overflow: hidden;
     word-wrap: break-word;
 }
 
-.waffle .s2 {
+.waffle .s7 {
     text-align: center;
     vertical-align: middle;
     white-space: nowrap;
     padding: 0;
 }
 
-.waffle .s3 {
+.waffle .s8 {
     text-align: center;
     font-weight: bold;
     vertical-align: middle;
@@ -50,36 +60,33 @@ s7 -- наименования -- после добавления туда сс�
     padding: 2px 3px;
 }
 
-.waffle .s4 {
+.waffle .s10 {
     text-align: left;
     font-weight: bold;
-    vertical-align: middle;
-    padding: 2px 3px;
-}
-
-.waffle .s5 {
-    text-align: left;
     vertical-align: middle;
     padding: 2px 3px;
 }
 
 .waffle .s6 {
+    text-align: left;
+    vertical-align: middle;
+    padding: 2px 3px;
+}
+
+.waffle .s7 {
     text-align: center;
     vertical-align: middle;
     white-space: nowrap;
     padding: 2px 3px;
 }
 
-.waffle .s7 {
-    text-align: left;
+/* первая th колонка - номера строк gsheet */
+th.row-headers-background.row-header-shim {
+    background-color: #99ff99;
+    text-align: center;
     font-weight: bold;
     vertical-align: middle;
     padding: 2px 3px;
-}
-
-/* первая колонка - номера строк gsheet -- прячем. */
-th.row-headers-background.row-header-shim {
-    display: none;
 }
 
 table.waffle {
