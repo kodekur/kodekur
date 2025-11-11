@@ -121,7 +121,7 @@
 	    });
 
 	    const data = await response.json();
-        console.log("Ответ сервера:", data);
+        // console.log("Счетчик ", season, " вернул: ", data);
 	    if (response.ok) {
 	        return data.result; // Возвращает новое значение счетчика
 	    } else {
@@ -146,6 +146,7 @@
         deliveryAddressRequiredIndicator.classList.add('hidden');
         sdekPointRequiredIndicator.classList.add('hidden');
 
+        // если radiobutton не выбран...
         if (!selectedDelivery) {
             return;
         }
@@ -281,8 +282,13 @@
                             }
                         });
 
-                        const seasonCounter = await incrementCounter(season);
-                        const orderNumber = `${ORDER_COUNTER_YEAR}-${SEASON_LABELS[season]}-${seasonCounter}`;
+                        // для тестов используем отдельный счетчик
+                        const isTest = name && (name.toLowerCase() === 'test' || name.toLowerCase() === 'тест');
+                        const counterName = isTest ? 'TEST' : season;
+                        
+                        const seasonCounter = await incrementCounter(counterName);
+                        const orderNumber = isTest ? `${ORDER_COUNTER_YEAR}-ТЕСТ-${seasonCounter}` : `${ORDER_COUNTER_YEAR}-${SEASON_LABELS[season]}-${seasonCounter}`;
+
                         orderNumbers.push(orderNumber);
                         seasonSections.push(`<h2>Заказ №${orderNumber}</h2>${seasonCart.outerHTML}`);
                     }
