@@ -91,7 +91,7 @@
 	</button>
 
     <h2>Каталог растений</h2>
-	<div id="product-catalog">
+    <div id="product-catalog" style="min-height: 400px;">
         <div id="catalog-loading">
             <img src="images/loading2.gif" alt="Загрузка...">
         </div>
@@ -187,6 +187,10 @@
                 cell.style.zIndex = '2';
             });
 
+            // Inject search input into the "Наименование" header cell
+            const nameHeaderCell = stickyHeader.querySelectorAll('td')[2]; // Наименование column
+            nameHeaderCell.appendChild(createSearchInput());
+
             rows.forEach((row, index) => {
                 const cells = row.querySelectorAll('td');
 
@@ -226,6 +230,60 @@
 		        }
 		    });
 		}
+
+        function createSearchInput() {
+            const searchContainer = document.createElement('div');
+            searchContainer.style.position = 'relative';
+            
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.id = 'search-input';
+            searchInput.placeholder = 'Поиск по наименованию...';
+            searchInput.style.width = '100%';
+            searchInput.style.boxSizing = 'border-box';
+            searchInput.onkeyup = filterCatalog;
+            
+            const clearButton = document.createElement('button');
+            clearButton.type = 'button';
+            clearButton.textContent = '✕';
+            clearButton.style.position = 'absolute';
+            clearButton.style.right = '0px';
+            clearButton.style.top = '22%';
+            clearButton.style.transform = 'translateY(-50%)';
+            clearButton.style.background = 'none';
+            clearButton.style.border = 'none';
+            clearButton.style.fontSize = '18px';
+            clearButton.style.cursor = 'pointer';
+            clearButton.style.color = '#999';
+            clearButton.style.marginTop = '8px';
+            clearButton.onclick = function () {
+                searchInput.value = '';
+                filterCatalog();
+            };
+            
+            searchContainer.appendChild(searchInput);
+            searchContainer.appendChild(clearButton);
+            return searchContainer;
+        }
+
+        function filterCatalog() {
+            const searchInput = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#catalog-table table tr');
+            
+            rows.forEach((row, index) => {
+                if (index === 0) return; // пропускаем заголовок
+                
+                const cells = row.querySelectorAll('td');
+                const nameCell = cells[2]; // колонка с наименованием
+                
+                // Для подразделов (colspan) поиск по второй ячейке
+                const isSubheader = cells[0] && cells[0].colSpan > 1;
+                const searchCell = isSubheader ? cells[0] : nameCell;
+                
+                const isVisible = searchCell.textContent.toLowerCase().includes(searchInput);
+                row.style.display = isVisible ? '' : 'none';
+            });
+        }
 
         function toggleCart() {
             const cartContainer = document.getElementById('cart-container');
