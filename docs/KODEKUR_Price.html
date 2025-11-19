@@ -3020,13 +3020,7 @@ ul
 <script type="text/javascript" src="/js/prototype.js"></script>
     <script type="text/javascript" src="/js/scriptaculous.js?load=effects,builder"></script>
     <script type="text/javascript" src="/js/lightbox.js"></script>
-    <script type="text/javascript">
-			function toggleBlock(elementId) {
-				var el = document.getElementById(elementId);
-				//el.style.display = (el.style.display == 'none') ? '' : 'none';
-				el.style.display = (el.style.display == 'none') ? 'block' : 'none';
-			}
-		</script>
+    <script type="text/javascript" src="/js/menu.js" defer></script>
 
     <link rel="stylesheet" href="/css/style.css" type="text/css"/>
     <link rel="stylesheet" href="/css/lightbox.css" type="text/css" media="screen" />
@@ -3048,40 +3042,10 @@ ul
     </tr> <!-- конец 1й строки -->
 	<tr>
         <td valign="top">
-            <ul id="nav" style="width: 250px">
-                <li><a href="/index.html">Главная</a></li>
-                <li><a href="javascript: toggleBlock('menuCatalog')">Каталог</a></li>
-						<span id="menuCatalog">
-							<li><a href="/arbustum.html">Декоративные кустарники</a></li>
-							<li><a href="/herbs.html">Декоративные травы</a></li>
-							<li><a href="/mnogoletnije.html">Многолетние культуры</a></li>							
-							<li><a href="/conifer.html">Хвойные</a></li>
-						</span>
-                <li><a href="/contacts.html">Контакты</a></li>
-                <li><a href="/KODEKUR_Price.html"target="_blank">Ассортимент на 2025 год</a></li>
-				<li><a href="/opt.html"target="_blank">Для оптовиков</a></li>
-            </ul>
-			<br/>
+            <!-- ячейка меню -->
+            <div id="menu-include"></div>
 
-            <div style="width: 250px">
-                <script>
-                          (function() {
-                            var cx = '012816619450786521312:3jqswgt6k4s';
-                            var gcse = document.createElement('script');
-                            gcse.type = 'text/javascript';
-                            gcse.async = true;
-                            gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-                                '//www.google.com/cse/cse.js?cx=' + cx;
-                            var s = document.getElementsByTagName('script')[0];
-                            s.parentNode.insertBefore(gcse, s);
-                          })();
-                        </script>
-                <gcse:searchbox-only resultsUrl="/search.html"></gcse:searchbox-only>
-            </div>
-
-            <br>
-
-            <p style="font-size: 35px; font-family: cursive; text-align: center">
+			<p style="font-size: 35px; font-family: cursive; text-align: center">
                 Собственное производство
             </p>
         </td>
@@ -25291,3 +25255,4 @@ color:black'>&nbsp;</span></p>
 </body>
 
 </html>
+
