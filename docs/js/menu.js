@@ -1,4 +1,4 @@
-var MENU_TEMPLATE = `
+const MENU_TEMPLATE = `
 <ul id="nav" style="width: 250px">
     <li><a href="/index.html">Главная</a></li>
     <li><a href="/market.html">Ассортимент на 2026 год</a></li>

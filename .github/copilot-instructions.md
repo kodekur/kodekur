@@ -105,7 +105,7 @@ python3 -m http.server 8000
 2. `docs/js/korzina.js` — Cart state management
 3. `docs/korzina.html` — Order form + EmailJS integration
 4. `docs/index.html` — Homepage
-5. `docs/**/*.html` — Static website pages
+5. `docs/**/*.html` except `docs/googleb9c0c66d53ea86db.html` — Static website pages
 
 ## Known Quirks & Gotchas
 
