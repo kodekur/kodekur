@@ -49,5 +49,6 @@ jobs:
               repo: context.repo.repo,
               title: '🚨 E2E Test Failed - Weekly Check',
               body: 'The weekly E2E test has failed. Please check the workflow run for details.',
-              labels: ['bug', 'test-failure']
+              labels: ['bug', 'test-failure'],
+              assignees: ['ubnt-natalia']
             });
