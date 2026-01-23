@@ -3,3 +3,9 @@
 Thumbs.db
 .picasa.ini
 .picasaoriginals
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+node_modules/
