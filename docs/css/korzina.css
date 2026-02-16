@@ -22,10 +22,23 @@ s10 -- наименования
 s6 -- описания
 s7 -- цены
 s8 -- сезоны
+
+Стили НОВОГО google sheet - 16 feb 2026:
+
+s0 -- подзаголовки colspan
+s1 -- заголовки фото, код, цена
+s2 -- заголовки наименование, описание
+s8 -- картинки
+s9 -- коды
+s11 -- наименования
+s7 -- описания
+s8 -- цены
+s9 -- сезоны
 */
 
 .waffle .s0,
-.waffle .s1 {
+.waffle .s1,
+.waffle .s2 {
     background-color: #99ff99;
     text-align: center;
     font-weight: bold;
@@ -37,22 +50,21 @@ s8 -- сезоны
     white-space: nowrap;
 }
 
-.waffle .s1,
-.waffle .s4,
-.waffle .s6 {
+.waffle .s11,
+.waffle .s7 {
     white-space: normal;
     overflow: hidden;
     word-wrap: break-word;
 }
 
-.waffle .s7 {
+.waffle .s8 {
     text-align: center;
     vertical-align: middle;
     white-space: nowrap;
     padding: 0;
 }
 
-.waffle .s8 {
+.waffle .s9 {
     text-align: center;
     font-weight: bold;
     vertical-align: middle;
@@ -60,20 +72,20 @@ s8 -- сезоны
     padding: 2px 3px;
 }
 
-.waffle .s10 {
+.waffle .s11 {
     text-align: left;
     font-weight: bold;
     vertical-align: middle;
     padding: 2px 3px;
 }
 
-.waffle .s6 {
+.waffle .s7 {
     text-align: left;
     vertical-align: middle;
     padding: 2px 3px;
 }
 
-.waffle .s7 {
+.waffle .s8 {
     text-align: center;
     vertical-align: middle;
     white-space: nowrap;
