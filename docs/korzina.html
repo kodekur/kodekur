@@ -64,9 +64,6 @@
     <label for="name">ФИО:<span class="required-indicator">*</span></label>
     <input type="text" id="name" name="name" class="field-wide" required autocomplete="name" placeholder="Фамилия Имя Отчество">
 
-    <label for="recipient">Email:<span class="required-indicator">*</span></label>
-    <input type="email" id="recipient" name="recipient" class="field-wide" required autocomplete="email" placeholder="name@email.ru">
-
     <label for="phone-number">Телефон:<span class="required-indicator">*</span></label>
     <input type="tel" id="phone-number" name="phoneNumber" class="field-wide" required autocomplete="tel-national" placeholder="(000) 000 00 00">
 
@@ -92,8 +89,37 @@
     <label for="sdek-point">Пункт выдачи СДЭК:<span class="required-indicator hidden" id="sdek-point-required">*</span></label>
     <input type="text" id="sdek-point" name="sdekPoint" class="field-wide" placeholder="Адрес пункта выдачи" disabled>
 
-    <label for="order-comment">Комментарий:</label>
-    <textarea id="order-comment" name="orderComment" class="field-wide" placeholder="Дополнительные способы связи и комментарии к заказу" rows="3"></textarea>
+    <div class="feedback-section">
+        <span class="form-label">Обратная связь:<span class="required-indicator hidden">*</span></span>
+        <div class="delivery-options">
+            <label class="radio-option">
+                <input type="checkbox" name="feedbackChannels" value="max">
+                Max <span class="feedback-extra">(по номеру телефона)</span>
+            </label>
+            <label class="radio-option">
+                <input type="checkbox" name="feedbackChannels" value="telegram">
+                Телеграм <span class="feedback-extra">(по номеру телефона)</span>
+            </label>
+            <div class="feedback-inputs-grid">
+                <div class="social-checkboxes">
+                    <label class="radio-option">
+                        <input type="checkbox" name="feedbackChannels" value="vk">
+                        Вконтакте
+                    </label>
+                    <label class="radio-option">
+                        <input type="checkbox" name="feedbackChannels" value="ok">
+                        Одноклассники
+                    </label>
+                </div>
+                <textarea id="social-handle" name="socialHandle" rows="2" placeholder="Как Вас найти в ВКонтакте / Одноклассниках"></textarea>
+                <label for="recipient">Email:</label>
+                <input type="email" id="recipient" name="recipient" class="feedback-email-input" autocomplete="email" placeholder="name@email.ru">
+            </div>
+        </div>
+    </div>
+
+    <label for="order-comment">Комментарий:<span class="required-indicator hidden">*</span></label>
+    <textarea id="order-comment" name="orderComment" class="field-wide" placeholder="Комментарии к заказу" rows="3"></textarea>
 
     <div class="button-row">
         <button type="submit" id="checkout-button" aria-label="Отправить заказ">Оформить заказ</button>
@@ -173,7 +199,6 @@
         const formRows = [];
         const textFields = [
             { selector: "#name", label: "ФИО" },
-            { selector: "#recipient", label: "Email" },
             { selector: "#phone-number", label: "Телефон" },
         ];
 
@@ -208,13 +233,27 @@
             }
         }
 
+        const selectedFeedbackChannels = Array.from(
+            deliveryForm.querySelectorAll('input[name="feedbackChannels"]:checked')
+        ).map((input) => input.parentElement.textContent.trim());
+        formRows.push({
+            label: "Обратная связь",
+            value: selectedFeedbackChannels.length ? selectedFeedbackChannels.join(", ") : "Не выбрано",
+        });
+
+        const socialHandleValue = deliveryForm.querySelector("#social-handle").value.trim();
+        formRows.push({ label: "ВКонтакте / Одноклассники", value: socialHandleValue });
+
+        const recipientValue = deliveryForm.querySelector("#recipient").value.trim();
+        formRows.push({ label: "Email для обратной связи", value: recipientValue });
+
         const commentField = deliveryForm.querySelector("#order-comment");
         const commentValue = commentField.value.trim();
         formRows.push({ label: "Комментарий", value: commentValue });
 
         const rowsHTML = formRows.map(({ label, value }) => {
             const normalizedValue = value.includes("\n") ? value.replace(/\n/g, "<br>") : value;
-            return `<tr><th style="border: 1px solid #000; padding: 4px 8px; text-align: right; background-color: #99FF99; width: 200px">${label}</th><td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">${normalizedValue}</td></tr>`;
+            return `<tr><th style="border: 1px solid #000; padding: 4px 8px; text-align: right; background-color: #99FF99; width: 300px">${label}</th><td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">${normalizedValue}</td></tr>`;
         }
         ).join("");
         
@@ -234,7 +273,7 @@
 
 		(async () => {
             const name = document.getElementById("name").value;
-        	const recipient = document.getElementById("recipient").value;
+        	const recipient = document.getElementById("recipient").value.trim();
         	const statusDiv = document.getElementById("status");
 
             // Очищаем сообщение о статусе
@@ -314,7 +353,9 @@
 		        await emailjs.send("service_8tuct4a_kodekur", "template_1p16xwl", params);
 
                 // Обновляем интерфейс после успешной отправки
-                statusDiv.textContent = `Заказ успешно оформлен и отправлен на ${recipient}`;
+                statusDiv.textContent = recipient
+                    ? `Заказ успешно оформлен и отправлен на ${recipient}`
+                    : "Заказ успешно оформлен";
                 statusDiv.className = "success";
 
                 const orderSummaryDiv = document.getElementById("order-summary");

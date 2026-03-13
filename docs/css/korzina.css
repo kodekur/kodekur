@@ -235,6 +235,55 @@ table.waffle thead {
     margin: 0;
 }
 
+#emailForm .feedback-extra {
+    font-weight: normal;
+}
+
+#emailForm .feedback-section {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    display: grid;
+    grid-template-columns: calc(200px - 10px) auto;
+    column-gap: 8px;
+    align-items: start;
+    border: 1px solid #000;
+    padding: 10px;
+}
+
+#emailForm .feedback-inputs-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 8px;
+    row-gap: 8px;
+    align-items: center;
+}
+
+#emailForm .social-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-self: start;
+}
+
+#emailForm #social-handle {
+    width: 100%;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+#emailForm .feedback-inputs-grid > label {
+    justify-self: start;
+    font-weight: bold;
+    white-space: nowrap;
+    margin: 0;
+}
+
+#emailForm .feedback-email-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 #emailForm .button-row {
     grid-column: 2;
     display: flex;
