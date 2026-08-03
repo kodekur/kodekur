@@ -9,10 +9,27 @@ on:
 jobs:
   e2e-test:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write # keepalive commit
+      issues: write # failure notification
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # GitHub disables scheduled workflows after 60 days without repository
+      # activity. Commit only when the repo has actually gone quiet, so an
+      # actively developed repo never sees these commits at all.
+      - name: Keepalive commit if repository is idle
+        run: |
+          idle_days=$(( ( $(date +%s) - $(git log -1 --format=%ct) ) / 86400 ))
+          echo "Last commit was $idle_days days ago"
+          if [ "$idle_days" -ge 45 ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit --allow-empty -m "chore: keepalive (idle ${idle_days}d)"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
