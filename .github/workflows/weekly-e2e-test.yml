@@ -31,6 +31,18 @@ jobs:
             git push origin HEAD:${{ github.ref_name }}
           fi
 
+      # Upstash удаляет бесплатную Redis-базу за неактивность. Тест ходит в Redis
+      # только при оформлении заказа, а в закрытый сезон до корзины не доходит,
+      # поэтому раз в неделю трогаем базу сами. URL и токен берём из korzina.html,
+      # чтобы не держать вторую копию.
+      - name: Keepalive Upstash Redis
+        run: |
+          url=$(grep -o 'https://[a-z0-9-]*\.upstash\.io' docs/korzina.html | head -1)
+          token=$(grep -o 'Bearer [A-Za-z0-9_=-]*' docs/korzina.html | head -1)
+          echo "INCR keepalive at $url"
+          curl -sf -H "Authorization: $token" "$url/incr/keepalive"
+          echo
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
