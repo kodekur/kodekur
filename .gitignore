@@ -9,3 +9,5 @@ Thumbs.db
 /playwright-report/
 /playwright/.cache/
 node_modules/
+# версия Playwright не фиксируется — CI берёт свежую
+package-lock.json
