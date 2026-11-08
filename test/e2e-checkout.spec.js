@@ -33,6 +33,11 @@ test.describe('E-commerce Checkout Flow', () => {
       // Verify catalog table is visible
       const catalogTable = page.locator('#catalog-table table');
       await expect(catalogTable).toBeVisible();
+
+      // Google sometimes serves the sheet in 200-row chunks; make sure the page
+      // merged all of them instead of showing only the first 200 rows (Nov 2026 bug).
+      const rowCount = await page.locator('#catalog-table table tr').count();
+      expect(rowCount, 'catalog must contain more than 200 rows').toBeGreaterThan(300);
     });
 
     // Step 3: Find and add a product to cart

@@ -122,34 +122,75 @@
         
         const SHEETS_HTML_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTTtHAJNH7OCmHvWk6DB8N4t5ddgM74H_P5dcbX4Jq4Glv7Oyy2P08HLiuf6-qu2EwXSIxsfyDC_JZ/pubhtml/sheet?headers=false&gid=0&single=true'; // "VERY NEW kodekur_price 2026"
 
+        // Мониторинг загрузки прайса: пишем в Upstash Redis (та же база, что счётчик заказов
+        // в korzina.html — URL/токен там же, при смене базы менять в обоих файлах).
+        // Ключ catalogLoad:<дата UTC>, поле "<строк>|<desktop|mobile>[|пометка]" → счётчик просмотров.
+        // Нужно, чтобы понять, почему прайс иногда обрывается на ~200 строках (ноябрь 2026).
+        const UPSTASH_URL = "https://finer-lynx-247963.upstash.io";
+        const UPSTASH_TOKEN = "Bearer gQAAAAAAA8ibAAIgcDIzZGY0NGZjZDhmNDM0MzEzYTM1MzIxMGY0MjU3NmVmZA";
+
+        function reportCatalogLoad(rowCount, note) {
+            try {
+                const day = new Date().toISOString().slice(0, 10);
+                const key = `catalogLoad:${day}`;
+                const device = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+                const field = `${rowCount}|${device}` + (note ? `|${note}` : '');
+                // GET-команды как в korzina.html (POST /pipeline из браузера Upstash не принимает)
+                const opts = { headers: { Authorization: UPSTASH_TOKEN }, keepalive: true };
+                fetch(`${UPSTASH_URL}/hincrby/${key}/${encodeURIComponent(field)}/1`, opts)
+                    .then(() => fetch(`${UPSTASH_URL}/expire/${key}/${90 * 24 * 3600}`, opts))
+                    .catch(() => {});
+            } catch (e) { /* мониторинг не должен мешать прайсу */ }
+        }
+
         async function loadCatalog() {
             const tableDiv = document.getElementById('catalog-table');
             const loadingEl = document.getElementById('catalog-loading');
+            let failNote = 'error';
 
             try {
                 const response = await fetch(SHEETS_HTML_URL, { cache: 'no-store' });
                 const data = await response.text();
-                const match = data.match(/<table[\s\S]*?<\/table>/i);
-                if (!match) throw new Error('Таблица не найдена: ' + SHEETS_HTML_URL);
+                // Google отдаёт лист либо одной таблицей, либо кусками (<div class="grid-chunk">)
+                // по 200 строк, каждый кусок — отдельная <table>. Берём ВСЕ куски, иначе прайс
+                // обрывается на 200-й строке (так и было в ноябре 2026).
+                const chunks = data.match(/<table[\s\S]*?<\/table>/gi);
+                if (!chunks) {
+                    failNote = 'notable';
+                    throw new Error('Таблица не найдена: ' + SHEETS_HTML_URL);
+                }
 
-                const myTable = transformGsheetTable(match[0]);
+                // сколько строк реально пришло от Google (без шапки таблицы)
+                // (цикл, а не Array.reduce: prototype.js на этом сайте подменяет reduce)
+                let receivedRows = -1;
+                chunks.forEach((c) => { receivedRows += (c.match(/<tr[\s>]/gi) || []).length; });
 
-                // console.log('catalog HTML:\n', match[0]);
+                const myTable = transformGsheetTable(chunks);
+
                 tableDiv.innerHTML = myTable;
                 addBuyButtons(tableDiv);
+                reportCatalogLoad(receivedRows, `${chunks.length}t`);
             } catch (e) {
                 console.error('Ошибка загрузки каталога', e);
                 tableDiv.textContent = 'Ошибка загрузки каталога';
+                reportCatalogLoad(0, failNote);
             } finally {
                 loadingEl.remove();
             }
         }
 
-        function transformGsheetTable(gsheetTable) {
-            // console.log('gsheetTable HTML:\n', gsheetTable);
+        function transformGsheetTable(gsheetChunks) {
+            // Первый кусок — таблица с шапкой; остальные куски содержат только <tbody> со строками,
+            // переносим их строки в первую таблицу, чтобы дальше работать с одной.
             const tempContainer = document.createElement('div');
-            tempContainer.innerHTML = gsheetTable;
-            const table = tempContainer.querySelector('table');
+            tempContainer.innerHTML = gsheetChunks.join('');
+            const tables = Array.from(tempContainer.querySelectorAll('table'));
+            const table = tables[0];
+            const tbody = table.tBodies[0];
+            tables.slice(1).forEach((chunk) => {
+                Array.from(chunk.querySelectorAll('tbody > tr')).forEach((row) => tbody.appendChild(row));
+                chunk.remove();
+            });
 
             const rows = Array.from(table.querySelectorAll('tr'));
 
