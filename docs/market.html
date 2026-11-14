@@ -129,6 +129,21 @@
         const UPSTASH_URL = "https://finer-lynx-247963.upstash.io";
         const UPSTASH_TOKEN = "Bearer gQAAAAAAA8ibAAIgcDIzZGY0NGZjZDhmNDM0MzEzYTM1MzIxMGY0MjU3NmVmZA";
 
+        // Диагностика ошибок загрузки (ноябрь 2026: 7–17% загрузок в день кончались безликим «error»,
+        // почти все с телефонов). В поле пишем: этап|тип ошибки|сообщение|сколько ждали|ушёл ли посетитель|сеть.
+        const catalogStart = Date.now();
+        let pageLeaving = false; // посетитель ушёл со страницы, пока прайс грузился (fetch при этом обрывается)
+        window.addEventListener('pagehide', () => { pageLeaving = true; });
+
+        function describeFailure(stage, e) {
+            const sec = (Date.now() - catalogStart) / 1000;
+            const waited = sec < 1 ? '0-1s' : sec < 5 ? '1-5s' : sec < 15 ? '5-15s' : sec < 60 ? '15-60s' : '60s+';
+            const msg = String((e && e.message) || e || '').replace(/[^\w .-]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40);
+            return [stage, (e && e.name) || 'Error', msg, waited,
+                    pageLeaving ? 'left' : document.visibilityState,
+                    navigator.onLine ? 'online' : 'offline'].join(':');
+        }
+
         function reportCatalogLoad(rowCount, note) {
             try {
                 const day = new Date().toISOString().slice(0, 10);
@@ -147,10 +162,17 @@
             const tableDiv = document.getElementById('catalog-table');
             const loadingEl = document.getElementById('catalog-loading');
             let failNote = 'error';
+            let stage = 'fetch'; // на каком этапе сломалось: fetch → http → read → parse → render
 
             try {
                 const response = await fetch(SHEETS_HTML_URL, { cache: 'no-store' });
+                if (!response.ok) {
+                    stage = 'http';
+                    throw new Error('HTTP ' + response.status);
+                }
+                stage = 'read';
                 const data = await response.text();
+                stage = 'parse';
                 // Google отдаёт лист либо одной таблицей, либо кусками (<div class="grid-chunk">)
                 // по 200 строк, каждый кусок — отдельная <table>. Берём ВСЕ куски, иначе прайс
                 // обрывается на 200-й строке (так и было в ноябре 2026).
@@ -167,13 +189,14 @@
 
                 const myTable = transformGsheetTable(chunks);
 
+                stage = 'render';
                 tableDiv.innerHTML = myTable;
                 addBuyButtons(tableDiv);
                 reportCatalogLoad(receivedRows, `${chunks.length}t`);
             } catch (e) {
                 console.error('Ошибка загрузки каталога', e);
                 tableDiv.textContent = 'Ошибка загрузки каталога';
-                reportCatalogLoad(0, failNote);
+                reportCatalogLoad(0, failNote === 'notable' ? failNote : 'error|' + describeFailure(stage, e));
             } finally {
                 loadingEl.remove();
             }
