@@ -138,6 +138,51 @@
 	const UPSTASH_AUTH_TOKEN = "Bearer gQAAAAAAA8ibAAIgcDIzZGY0NGZjZDhmNDM0MzEzYTM1MzIxMGY0MjU3NmVmZA"; // токен авторизации
     const ORDER_COUNTER_YEAR = "2027";
 
+    // Мониторинг отправки заказов (ноябрь 2026: клиенты с телефонов видели «Ошибка при отправке письма: Load failed»).
+    // Хэш orderSend:<дата UTC>, поле "ok|<устройство>" или
+    // "error|<устройство>|<этап>:<тип>:<сообщение>:<ожидание>:<видимость>:<сеть>", у тестовых заказов хвост "|test".
+    // Этапы: counter (номер заказа из Upstash), email (EmailJS), build (сборка письма).
+    // Если Upstash недоступен (а это и есть типичная причина ошибки), запись откладывается в localStorage
+    // и досылается при следующем открытии корзины. Читает отчёт claude-solution/monitors/kodekur_catalog.py.
+    const UPSTASH_BASE = UPSTASH_REST_API.replace(/\/incr$/, "");
+    const PENDING_REPORTS_KEY = "kodekurPendingReports";
+    const DEVICE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "mobile" : "desktop";
+
+    function sendReport(key, field) {
+        const opts = { headers: { Authorization: UPSTASH_AUTH_TOKEN }, keepalive: true };
+        return fetch(`${UPSTASH_BASE}/hincrby/${key}/${encodeURIComponent(field)}/1`, opts).then((r) => {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return fetch(`${UPSTASH_BASE}/expire/${key}/${90 * 24 * 3600}`, opts);
+        });
+    }
+    function pendingReports() {
+        try { return JSON.parse(localStorage.getItem(PENDING_REPORTS_KEY) || "[]"); } catch (e) { return []; }
+    }
+    function savePending(list) {
+        try { localStorage.setItem(PENDING_REPORTS_KEY, JSON.stringify(list.slice(-20))); } catch (e) { /* нет места — пропускаем */ }
+    }
+    function flushPendingReports() {
+        const list = pendingReports();
+        if (!list.length) return;
+        savePending([]);
+        list.forEach((r) => sendReport(r.key, r.field).catch(() => savePending(pendingReports().concat([r]))));
+    }
+    function reportOrderSend(field) {
+        try {
+            const key = `orderSend:${new Date().toISOString().slice(0, 10)}`;
+            sendReport(key, field).catch(() => savePending(pendingReports().concat([{ key, field }])));
+        } catch (e) { /* мониторинг не должен мешать заказу */ }
+    }
+    function describeOrderFailure(stage, e, startedAt) {
+        const sec = (Date.now() - startedAt) / 1000;
+        const waited = sec < 1 ? "0-1s" : sec < 5 ? "1-5s" : sec < 15 ? "5-15s" : sec < 60 ? "15-60s" : "60s+";
+        // emailjs при сбое отдаёт не Error, а объект {status, text}
+        const name = (e && e.name) || (e && e.status !== undefined ? "EmailJS" + e.status : "Error");
+        const emailjsText = e && e.status !== undefined ? (e.text || "network error") : "";
+        const msg = String((e && e.message) || emailjsText || e || "").replace(/[^\w .-]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 40);
+        return [stage, name, msg, waited, document.visibilityState, navigator.onLine ? "online" : "offline"].join(":");
+    }
+
 	// Функция для увеличения счетчика
 	async function incrementCounter(season) {
         const counterName = `orderCounter${ORDER_COUNTER_YEAR}${season}`;
@@ -279,6 +324,11 @@
             // Очищаем сообщение о статусе
             statusDiv.textContent = "";
 
+            const startedAt = Date.now();
+            let stage = "build"; // для мониторинга: на каком этапе сломалось
+            const isTestOrder = !!name && ["test", "тест"].includes(name.trim().toLowerCase());
+            const testTag = isTestOrder ? "|test" : "";
+
             try {
                 let cartTable = document.getElementById("cart-table");
 
@@ -327,7 +377,9 @@
                         const isTest = name && (name.toLowerCase() === 'test' || name.toLowerCase() === 'тест');
                         const counterName = isTest ? 'TEST' : season;
                         
+                        stage = "counter";
                         const seasonCounter = await incrementCounter(counterName);
+                        stage = "build";
                         const orderNumber = isTest ? `${ORDER_COUNTER_YEAR}-ТЕСТ-${seasonCounter}` : `${ORDER_COUNTER_YEAR}-${SEASON_LABELS[season]}-${seasonCounter}`;
 
                         orderNumbers.push(orderNumber);
@@ -350,7 +402,9 @@
                 };
 
 				// Отправляем письмо через EmailJS
+                stage = "email";
 		        await emailjs.send("service_8tuct4a_kodekur", "template_1p16xwl", params);
+                reportOrderSend("ok|" + DEVICE + testTag);
 
                 // Обновляем интерфейс после успешной отправки
                 statusDiv.textContent = recipient
@@ -369,8 +423,11 @@
                 document.getElementById("emailForm").style.display = "none";
 		    } catch (error) {
 		        console.error("Ошибка:", error);
-		        statusDiv.textContent = "Ошибка при отправке письма: " + error.message;
+                // emailjs отдаёт {status, text} без message — иначе на экране было бы «undefined»
+		        statusDiv.textContent = "Ошибка при отправке письма: " + ((error && (error.message || error.text))
+                    || (error && error.status !== undefined ? "нет связи с почтовым сервисом" : error));
 		        statusDiv.className = "error";
+                reportOrderSend("error|" + DEVICE + "|" + describeOrderFailure(stage, error, startedAt) + testTag);
             } finally {
                 submitLoading.style.display = "none";
                 checkoutButton.disabled = false;
@@ -381,6 +438,7 @@
     window.addEventListener('load', () => {
         loadCart();
         handleDeliveryFields();
+        flushPendingReports(); // досылаем отчёты мониторинга, не ушедшие в прошлый раз
     });
 </script>
 </td>
