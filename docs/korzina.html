@@ -133,18 +133,20 @@
     // Инициализация EmailJS с Public Key
 	emailjs.init("i3HpqvdgITUgo3iv4");
 	
-	// Глобальный счетчик заказов в Upstash
-	const UPSTASH_REST_API = "https://finer-lynx-247963.upstash.io/incr";
+	// Год и сезон в теме письма: «2027-ВЕСНА» (с 2026-11-17 без порядкового номера — счётчик в Upstash
+	// с телефонов срывал отправку заказа; решение Наташи). Менять год в ноябре вместе с прайсом.
+    const ORDER_YEAR = "2027";
+
+	// Upstash Redis — только для мониторинга (та же база, что catalogLoad в market.html).
+	const UPSTASH_BASE = "https://finer-lynx-247963.upstash.io";
 	const UPSTASH_AUTH_TOKEN = "Bearer gQAAAAAAA8ibAAIgcDIzZGY0NGZjZDhmNDM0MzEzYTM1MzIxMGY0MjU3NmVmZA"; // токен авторизации
-    const ORDER_COUNTER_YEAR = "2027";
 
     // Мониторинг отправки заказов (ноябрь 2026: клиенты с телефонов видели «Ошибка при отправке письма: Load failed»).
     // Хэш orderSend:<дата UTC>, поле "ok|<устройство>" или
     // "error|<устройство>|<этап>:<тип>:<сообщение>:<ожидание>:<видимость>:<сеть>", у тестовых заказов хвост "|test".
-    // Этапы: counter (номер заказа из Upstash), email (EmailJS), build (сборка письма).
-    // Если Upstash недоступен (а это и есть типичная причина ошибки), запись откладывается в localStorage
-    // и досылается при следующем открытии корзины. Читает отчёт claude-solution/monitors/kodekur_catalog.py.
-    const UPSTASH_BASE = UPSTASH_REST_API.replace(/\/incr$/, "");
+    // Этапы: email (EmailJS), build (сборка письма). Мониторинг НИКОГДА не ждётся и не мешает заказу:
+    // все запросы fire-and-forget. Если Upstash недоступен, запись откладывается в localStorage и досылается
+    // при следующем открытии корзины с пометкой "|q". Читает отчёт claude-solution/monitors/kodekur_catalog.py.
     const PENDING_REPORTS_KEY = "kodekurPendingReports";
     const DEVICE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "mobile" : "desktop";
 
@@ -165,7 +167,7 @@
         const list = pendingReports();
         if (!list.length) return;
         savePending([]);
-        list.forEach((r) => sendReport(r.key, r.field).catch(() => savePending(pendingReports().concat([r]))));
+        list.forEach((r) => sendReport(r.key, r.field + "|q").catch(() => savePending(pendingReports().concat([r]))));
     }
     function reportOrderSend(field) {
         try {
@@ -182,26 +184,6 @@
         const msg = String((e && e.message) || emailjsText || e || "").replace(/[^\w .-]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 40);
         return [stage, name, msg, waited, document.visibilityState, navigator.onLine ? "online" : "offline"].join(":");
     }
-
-	// Функция для увеличения счетчика
-	async function incrementCounter(season) {
-        const counterName = `orderCounter${ORDER_COUNTER_YEAR}${season}`;
-	    const response = await fetch(`${UPSTASH_REST_API}/${counterName}`, {
-	        method: "GET",
-	        headers: {
-	            Authorization: UPSTASH_AUTH_TOKEN,
-	        },
-	    });
-
-	    const data = await response.json();
-        // console.log("Счетчик ", season, " вернул: ", data);
-	    if (response.ok) {
-	        return data.result; // Возвращает новое значение счетчика
-	    } else {
-            console.error("Ошибка запроса к Upstash:", data.error);
-	        throw new Error(data.error || "Ошибка при обращении к Upstash");
-	    }
-	}
 
     const deliveryRadios = document.querySelectorAll('input[name="deliveryMethod"]');
     const deliveryAddressInput = document.getElementById('delivery-address');
@@ -358,7 +340,7 @@
                 }
 
                 const seasonSections = [];
-                const orderNumbers = [];
+                const orderLabels = [];
 
                 // разбиваем cartClone на сезоны.
                 for (const season of SEASON_KEYS) {
@@ -373,17 +355,10 @@
                             }
                         });
 
-                        // для тестов используем отдельный счетчик
-                        const isTest = name && (name.toLowerCase() === 'test' || name.toLowerCase() === 'тест');
-                        const counterName = isTest ? 'TEST' : season;
-                        
-                        stage = "counter";
-                        const seasonCounter = await incrementCounter(counterName);
-                        stage = "build";
-                        const orderNumber = isTest ? `${ORDER_COUNTER_YEAR}-ТЕСТ-${seasonCounter}` : `${ORDER_COUNTER_YEAR}-${SEASON_LABELS[season]}-${seasonCounter}`;
+                        const orderLabel = isTestOrder ? `${ORDER_YEAR}-ТЕСТ` : `${ORDER_YEAR}-${SEASON_LABELS[season]}`;
 
-                        orderNumbers.push(orderNumber);
-                        seasonSections.push(`<h2>Заказ №${orderNumber}</h2>${seasonCart.outerHTML}`);
+                        orderLabels.push(orderLabel);
+                        seasonSections.push(`<h2>Заказ ${orderLabel}</h2>${seasonCart.outerHTML}`);
                     }
                 }
 
@@ -397,7 +372,8 @@
                 const params = {
                     name: name,
                     email: recipient,
-                    order_number: orderNumbers.join(', '),
+                    // в шаблоне EmailJS это тема письма: «Новый заказ 2027-ВЕСНА от {{name}}»; Set — у теста все сезоны «2027-ТЕСТ»
+                    order_number: [...new Set(orderLabels)].join(', '),
                     html: fullCartHTML, // Используем сформированный HTML
                 };
 
